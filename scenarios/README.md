@@ -1,8 +1,8 @@
 # Scenario Library
 
-Ten runnable attack scenarios for the homelab range (`lab/SETUP.md`). Each is a self-contained lab: a story, the setup, the exact commands to run it, cleanup, where the telemetry lands, and — hidden until you expand it — the grading key. You run one (or let `lab/dealer.sh` pick), investigate the Wazuh telemetry cold, write the case file, then check yourself against the key.
+These are ten attack scenarios I can run against the homelab range (`lab/SETUP.md`). Each one is self-contained: the story, the setup, the exact commands, cleanup, where the telemetry ends up, and a grading key that stays hidden until I expand it. I run one (or let `lab/dealer.sh` pick), investigate the telemetry cold, write the case file, then check myself against the key.
 
-**Every scenario ends in a `<details>` block holding the ground truth.** Don't open it until your verdict is written. On GitHub it stays collapsed — so these files double as investigation prompts anyone can try against their own range.
+Every scenario ends in a `<details>` block with the ground truth. I don't open it until my verdict is written. It stays collapsed on GitHub, so these files also work as investigation prompts anyone can try on their own range.
 
 ## The ladder
 
@@ -19,24 +19,24 @@ Ten runnable attack scenarios for the homelab range (`lab/SETUP.md`). Each is a 
 | S09 | Exfiltration over DNS                 | 3    | T1048.003, T1071.004    | pcap + DNS query logs       |
 | S10 | Prompt-injection exfil vs homelab LLM | 3    | ATLAS + T1041           | app logs + egress pcap      |
 
-Tier 1 needs only stock Wazuh + auth logs. Tier 2 needs auditd (Linux) or Sysmon (Windows). Tier 3 needs pcap and, for S10, a small LLM app. Climb in order the first time through; after that, blind draws.
+Tier 1 needs only stock Wazuh plus auth logs. Tier 2 needs auditd on Linux or Sysmon on Windows. Tier 3 needs pcap, and S10 also needs a small LLM app. I climb them in order the first time through, then draw blind after that.
 
 ## How to run one
 
-1. Snapshot victims to `baseline` (`lab/SETUP.md`).
-2. Either run the scenario's commands with randomized params, **or** `./lab/dealer.sh --scenario S05` to have it run + seal the ground truth.
-3. Investigate from Wazuh + raw logs. Write `cases/YYYY-MM-DD.md`.
-4. Expand the scenario's `<details>` (or read `lab/.groundtruth/`) and grade yourself.
-5. Revert victims to `baseline`.
+1. Snapshot the victims to `baseline` (`lab/SETUP.md`).
+2. Either run the scenario's commands with randomized params, or run `./lab/dealer.sh --scenario S05` to have it run and seal the ground truth.
+3. Investigate from Wazuh and the raw logs. Write `cases/YYYY-MM-DD.md`.
+4. Expand the scenario's `<details>` (or read `lab/.groundtruth/`) and grade myself.
+5. Revert the victims to `baseline`.
 
 ## Tooling the scenarios lean on
 
-- **Atomic Red Team** (`Invoke-AtomicTest`) for S04–S07 — safe, reversible, ATT&CK-mapped tests. Install per its docs on the victim; it's your attack library.
-- **hydra / ncrack** (S01), **DVWA** (S03), **dnscat2 or iodine** (S09), a **toy LLM app** you build in Learning-Track Stage 2 (S10).
+- **Atomic Red Team** (`Invoke-AtomicTest`) for S04–S07. Safe, reversible, ATT&CK-mapped tests. Install it per its docs on the victim; it's the attack library.
+- **hydra / ncrack** (S01), **DVWA** (S03), **dnscat2 or iodine** (S09), and a **toy LLM app** I build in Learning-Track Stage 2 (S10).
 
 ## Coverage map (fill in as you go)
 
-Tick a technique when you've both *run* it and *shipped a detection* for it. The goal is a filled column, not just a filled row.
+I tick a technique once I've both run it and shipped a detection for it. The goal is a filled column, not just a filled row.
 
 ```
 Initial Access   [ ] T1190   [ ] T1110
