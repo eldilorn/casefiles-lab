@@ -1,0 +1,6 @@
+# Sealed ground truth — never commit
+lab/.groundtruth/
+*.pcap
+*.pcapng
+*.log
+.DS_Store
