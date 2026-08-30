@@ -37,9 +37,9 @@ What was the escalation vector (which binary, which misconfig)? Reconstruct the 
 A rule on `execve` where a known-SUID interactive shell spawns with `euid=0` from a non-login-shell parent, or a FIM/auditd high-severity alert on any write to `/etc/sudoers*`. Ship whichever your run exercised.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: which misconfig (A/B/C), the exact escalation command, and the root actions (sudoers write + `useradd attacker`).
-- **Good:** you name the vector from the audit trail (not by guessing), pin the euid=0 timestamp, and list post-escalation persistence. Bonus: you identify the misconfig's origin (the `chmod u+s` / sudoers line) as the root cause and propose the specific control.
-- **Miss:** "user ran find" without connecting it to the SUID bit and the euid=0 shell — the escalation is the point, not the command.
+- Sealed truth: which misconfig (A/B/C), the exact escalation command, and the root actions (the sudoers write and `useradd attacker`).
+- **Good:** you name the vector from the audit trail rather than guessing, pin the euid=0 timestamp, and list the persistence that followed. Bonus if you identify where the misconfig came from (the `chmod u+s` or sudoers line) as the root cause and propose the specific control.
+- **Miss:** "user ran find" without connecting it to the SUID bit and the euid=0 shell. The escalation is the point, not the command.
 </details>

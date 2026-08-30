@@ -40,9 +40,9 @@ When did the shell file appear (FIM) and does that line up with a POST in the ac
 Correlate a FIM "file created in web root" with the same file being requested via GET within minutes, or an auditd rule flagging `www-data` spawning `sh`/`wget`/`curl`. Either one is a solid web-shell detection. Ship it.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: shell filename, upload timestamp, the exact `c=` command sequence, and whether a second stage was fetched.
-- **Good:** you tie the FIM create to the upload POST to the command GETs into one timeline, decode every `c=` param, and flag the `www-data`→shell execution as the smoking gun. Bonus: hash of the shell + the second-stage URL.
-- **Miss:** seeing the FIM alert but never reading the access log to learn what the shell *did* — the file appearing is initial access; the case is the hands-on-keyboard that followed.
+- Sealed truth: the shell filename, the upload timestamp, the exact `c=` command sequence, and whether a second stage was fetched.
+- **Good:** you tie the FIM create, the upload POST, and the command GETs into one timeline, decode every `c=` param, and flag the `www-data`-to-shell execution as the smoking gun. Bonus for the hash of the shell and the second-stage URL.
+- **Miss:** seeing the FIM alert but never reading the access log to learn what the shell did. The file appearing is initial access. The case is the hands-on-keyboard activity that followed.
 </details>

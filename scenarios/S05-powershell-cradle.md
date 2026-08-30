@@ -37,9 +37,9 @@ Decode the command (4104 gives it to you). Did it reach out, to where, and did t
 A rule on `powershell.exe` with `-enc`/`-EncodedCommand`, `DownloadString`/`DownloadFile`/`IEX`, or a network connection to a non-corporate IP. Best: correlate Sysmon 1 (cradle command) → Sysmon 3 (egress) → Sysmon 1 (child spawned by the stage). Ship the command-line rule.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: encoded or plain, the decoded command, the callback URL, and success/blocked.
-- **Good:** you decoded the intent from 4104, confirmed egress with Event 3 + kali's log, named the parent, and gave a defensible verdict with confidence. Bonus: you noted script-block logging defeats the encoding.
-- **Miss:** stopping at "encoded PowerShell = bad" without decoding it — the whole skill is turning `-enc` into the actual behavior.
+- Sealed truth: encoded or plain, the decoded command, the callback URL, and success or blocked.
+- **Good:** you decoded the intent from 4104, confirmed egress with Event 3 and kali's log, named the parent, and gave a defensible verdict with a confidence level. Bonus if you noted that script-block logging defeats the encoding.
+- **Miss:** stopping at "encoded PowerShell is bad" without decoding it. The whole skill is turning `-enc` into the actual behavior.
 </details>

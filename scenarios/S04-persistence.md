@@ -47,9 +47,9 @@ cron or systemd? What's the payload and where does it call out? What's the beaco
 Auditd/FIM high-severity on any create/modify under `/etc/cron*`, `/etc/systemd/system/`, and per-user crontabs. A harder rule that flags a *new* process beaconing on a fixed interval is better still. Ship the file-create rule at minimum.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: mechanism (cron vs timer), schedule, payload path, callback host.
-- **Good:** you found the mechanism from the persistence watch, read the interval off the recurring exec entries, and stated boot-survival correctly. Bonus: you connected the persistence timestamp back to the S01/S03 foothold.
-- **Miss:** finding the cron/timer file but never confirming it *fired* — an installed-but-never-run persistence and an active beacon look different in the logs, and the difference is the finding.
+- Sealed truth: the mechanism (cron or timer), the schedule, the payload path, and the callback host.
+- **Good:** you found the mechanism from the persistence watch, read the interval off the recurring exec entries, and stated boot-survival correctly. Bonus if you connected the persistence timestamp back to the S01/S03 foothold.
+- **Miss:** finding the cron or timer file but never confirming it fired. An installed-but-never-run persistence and an active beacon look different in the logs, and that difference is the finding.
 </details>

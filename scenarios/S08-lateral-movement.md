@@ -35,9 +35,9 @@ Reconstruct the path: which account moved from where to where, and when? RDP or 
 A rule that flags the same account authenticating to a second host shortly after the first (impossible-travel-lite for a flat lab), or Logon Type 10 / SSH-accept where the source is an internal asset that shouldn't be initiating admin sessions. Ship the cross-host correlation.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: protocol, account, source host, dest host, timestamps, on-arrival commands.
-- **Good:** you draw the A→B path from two hosts' logs, identify the protocol from the right event (4624 type 10 for RDP), and flag internal-origin auth as the discriminator. Bonus: you linked the reused credential back to its harvest case.
-- **Miss:** treating the destination login as an isolated event — lateral movement only exists as a *relationship between two hosts*, and the case is that relationship.
+- Sealed truth: the protocol, the account, the source host, the dest host, the timestamps, and the commands run on arrival.
+- **Good:** you draw the A-to-B path from both hosts' logs, identify the protocol from the right event (4624 type 10 for RDP), and flag internal-origin auth as the discriminator. Bonus if you linked the reused credential back to its harvest case.
+- **Miss:** treating the destination login as an isolated event. Lateral movement only exists as a relationship between two hosts, and the case is that relationship.
 </details>

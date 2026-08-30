@@ -32,9 +32,9 @@ Which process accessed LSASS, with what `GrantedAccess` mask, at what time? Was 
 An Event-10 rule where `TargetImage` ends in `lsass.exe` and `GrantedAccess` is in the dumper set, excluding known-good `SourceImage`s. This is a high-value endpoint detection. Ship it and document the allowlist you had to build.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: which sub-test/source image, the GrantedAccess mask, and whether a dump file was created.
-- **Good:** you identify the source process and the access mask, know the mask is the discriminator (not just "something touched lsass"), and address the false-positive problem (benign LSASS access exists). Bonus: you caught the on-disk dump via Event 11.
-- **Miss:** alerting on *any* LSASS access — you'll drown in AV noise. The rep is the `GrantedAccess` discrimination.
+- Sealed truth: which sub-test or source image, the GrantedAccess mask, and whether a dump file was created.
+- **Good:** you identify the source process and the access mask, know the mask is the discriminator (not just "something touched lsass"), and address the false-positive problem, since benign LSASS access exists. Bonus if you caught the on-disk dump via Event 11.
+- **Miss:** alerting on any LSASS access at all. You'll drown in AV noise. The rep is the `GrantedAccess` discrimination.
 </details>

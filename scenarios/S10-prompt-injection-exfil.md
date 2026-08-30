@@ -35,9 +35,9 @@ Did the injection fire? Trace the trifecta: where did untrusted content enter (w
 This is the deliverable the Learning Track has been building toward: a working **detection for an AI attack**. Options: an egress rule on the app VM alerting on outbound requests to non-allowlisted hosts (breaks the exfil leg cleanly), a log rule matching injection markers ("ignore previous instructions", tool calls not traceable to a user turn), or a guard that flags retrieved content containing imperative instructions. Ship one, prove it fires against your own attack, and write it up. That is a publishable piece (Learning-Track Stage 5 checkpoint).
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: injection fired or not, obfuscation used, the private data touched, the exact exfil URL, whether egress was open.
-- **Good:** you name all three trifecta legs with evidence from logs + pcap, reconstruct the outbound request, propose the control that breaks the chain mapped to OWASP/ATLAS, and honestly assess whether your logging caught it live. Bonus: the shipped egress/injection detection actually fires on re-run.
-- **Miss:** "the AI got jailbroken" as the verdict — the security finding is the *data path*: untrusted input → private data → exfil, and which leg you can cut. A jailbreak with no exfil path is a curiosity; the trifecta is the breach.
+- Sealed truth: whether the injection fired, the obfuscation used, the private data touched, the exact exfil URL, and whether egress was open.
+- **Good:** you name all three trifecta legs with evidence from the logs and pcap, reconstruct the outbound request, propose the control that breaks the chain mapped to OWASP/ATLAS, and honestly assess whether your logging caught it live. Bonus if the shipped egress/injection detection actually fires on re-run.
+- **Miss:** giving "the AI got jailbroken" as the verdict. The security finding is the data path: untrusted input to private data to exfil, and which leg you can cut. A jailbreak with no exfil path is a curiosity; the trifecta is the breach.
 </details>

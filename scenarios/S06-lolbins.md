@@ -37,9 +37,9 @@ Which LOLBin, what URL, what file landed where? Did the payload execute (child p
 Command-line rules for `certutil`/`bitsadmin`/`mshta`/`regsvr32` with `http`/`urlcache`/`/transfer` tokens, or Sysmon-3 alerts where the process image is a known LOLBin. Ship one, and note it is behavior-based, not signature-based. That is the point.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: which LOLBin, URL, dropped path, and whether the payload ran.
-- **Good:** you name the LOLBin, tie its Sysmon-3 egress to the file-create to the child execution, and articulate *why signed ≠ safe here.* Bonus: you note the same detection logic generalizes across all the LOLBins.
-- **Miss:** dismissing `certutil` as a normal cert tool — context (a URL + a dropped exe) is what makes it malicious, and reading that context is the rep.
+- Sealed truth: which LOLBin, the URL, the dropped path, and whether the payload ran.
+- **Good:** you name the LOLBin, tie its Sysmon-3 egress to the file-create to the child execution, and explain why signed doesn't mean safe here. Bonus if you note the same detection logic generalizes across all the LOLBins.
+- **Miss:** dismissing `certutil` as a normal cert tool. The context (a URL plus a dropped exe) is what makes it malicious, and reading that context is the rep.
 </details>

@@ -41,9 +41,9 @@ Did it succeed? Which account, which source IP, at what time? How many failures 
 Write/tune a rule that correlates ≥N failures followed by an `Accepted password` from the *same* source within a window, and fires at a higher level than either alone. A "brute force that worked" alert is more useful than either raw signal on its own. Ship it to `lab/rules/`.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Ground truth per run lives sealed in `lab/.groundtruth/`. The dealer records: source IP, target user, whether the password was in the list (success/fail), timestamp, and whether recon ran first.
-- **What good looks like:** you state success/failure with the *evidence* (the `Accepted password` line, not a guess), name the source IP and account, give the failure count and window, and list the post-login commands. Bonus: you noticed the nmap SYN scan preceding it.
-- **Common miss:** reporting "brute force detected" and stopping — that's the alert, not the verdict. The verdict is *did it work.* If default rules didn't make success obvious, that blind spot IS the finding, and the correlation rule above is the fix.
+- The ground truth for each run is sealed in `lab/.groundtruth/`. The dealer records the source IP, the target user, whether the password was in the list (success or fail), the timestamp, and whether recon ran first.
+- **What good looks like:** you state success or failure with the evidence (the `Accepted password` line, not a guess), name the source IP and account, give the failure count and window, and list the commands run after login. Bonus if you noticed the nmap SYN scan before it.
+- **Common miss:** reporting "brute force detected" and stopping. That's the alert, not the verdict. The verdict is whether it worked. If the default rules didn't make success obvious, that blind spot is the finding, and the correlation rule above is the fix.
 </details>

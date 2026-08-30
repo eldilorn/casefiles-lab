@@ -33,9 +33,9 @@ What made these queries abnormal (length? entropy? volume? record type? single d
 A detection on DNS query length/entropy thresholds, or query volume to a single second-level domain over a window. This is where you learn Wazuh needs a DNS log source it doesn't have by default. Writing that gap into the case (and adding the log source) is the real deliverable. Optionally a Sigma rule for DNS-tunneling patterns.
 
 <details>
-<summary>Grading key — do not open until your verdict is written</summary>
+<summary>Grading key: don't open until your verdict is written</summary>
 
-- Sealed truth: tool, domain, file exfiltrated, approximate byte count, query rate.
-- **Good:** you characterize the tunnel from packet features (length + entropy + volume + record type), estimate volume with your arithmetic shown, name the destination, and correctly explain the host-based blind spot. Bonus: partial decode of a query payload.
-- **Miss:** "lots of DNS queries" without the *why abnormal* — normal DNS is short, cached, and diverse; this is long, unique, and single-domain. That contrast is the finding.
+- Sealed truth: the tool, the domain, the file exfiltrated, the approximate byte count, and the query rate.
+- **Good:** you characterize the tunnel from packet features (length, entropy, volume, and record type), estimate the volume with your arithmetic shown, name the destination, and explain the host-based blind spot correctly. Bonus for a partial decode of a query payload.
+- **Miss:** "lots of DNS queries" without the why-abnormal. Normal DNS is short, cached, and diverse; this is long, unique, and single-domain. That contrast is the finding.
 </details>
