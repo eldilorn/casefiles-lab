@@ -3,13 +3,13 @@
 **Tier 1 · ATT&CK: T1548.001 (Setuid/Setgid), T1068 (Exploitation for Priv Esc)**
 
 ## Story
-A low-priv user on `vic-lin` (say the `svc-backup` foothold from S01) became root. No exploit CVE — just a misconfiguration a careful eye would have caught. Which one, and what did root do next?
+A low-priv user on `vic-lin` (say the `svc-backup` foothold from S01) became root. No exploit CVE, just a misconfiguration a careful eye would have caught. Which one, and what did root do next?
 
 ## Lab setup
 Pick ONE misconfig per run (the dealer randomizes which):
-- **A — SUID binary abuse:** `sudo chmod u+s /usr/bin/find` (a GTFOBins classic).
-- **B — sudoers wildcard/NOPASSWD:** add `svc-backup ALL=(ALL) NOPASSWD: /usr/bin/vim` to `/etc/sudoers.d/lab`.
-- **C — writable cron/PATH:** a root cron that runs a script from a user-writable dir.
+- **A - SUID binary abuse:** `sudo chmod u+s /usr/bin/find` (a GTFOBins classic).
+- **B - sudoers wildcard/NOPASSWD:** add `svc-backup ALL=(ALL) NOPASSWD: /usr/bin/vim` to `/etc/sudoers.d/lab`.
+- **C - writable cron/PATH:** a root cron that runs a script from a user-writable dir.
 - auditd loaded with the `lab.rules` from `lab/SETUP.md`.
 
 ## Run it
@@ -31,7 +31,7 @@ Revert to `baseline`.
 - **Wazuh**: auditd decoder surfaces the execve records; the write to `/etc/sudoers` and `useradd` map to privilege-escalation / account-manipulation rules.
 
 ## Your investigation (fill cold)
-What was the escalation vector (which binary, which misconfig)? Reconstruct the exact moment euid went to 0 from the audit record. What did the new-root do — new account? sudoers edit? Is there persistence now? Which single control would have prevented it?
+What was the escalation vector (which binary, which misconfig)? Reconstruct the exact moment euid went to 0 from the audit record. What did the new root do (new account, sudoers edit)? Is there persistence now? Which single control would have prevented it?
 
 ## Detection engineering
 A rule on `execve` where a known-SUID interactive shell spawns with `euid=0` from a non-login-shell parent, or a FIM/auditd high-severity alert on any write to `/etc/sudoers*`. Ship whichever your run exercised.

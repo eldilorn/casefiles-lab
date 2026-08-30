@@ -24,12 +24,12 @@ xfreerdp /u:localadmin /p:'Winter2026!' /v:10.10.10.30
 Revert both hosts to `baseline`.
 
 ## What telemetry this generates
-- **SSH dest**: `auth.log` `Accepted password for svc-backup from 10.10.10.20` — note the source is *another internal host*, not the attacker's usual IP. That internal→internal auth is the tell.
+- **SSH dest**: `auth.log` `Accepted password for svc-backup from 10.10.10.20`. Note the source is *another internal host*, not the attacker's usual IP. That internal→internal auth is the tell.
 - **RDP dest**: **Event 4624 Logon Type 10** (RemoteInteractive) + Sysmon 3 inbound on 3389. `4778`/`4779` for session connect/reconnect.
 - **Wazuh**: authentication-success rules on both; the value is correlating the *same account* appearing on host A then host B minutes apart.
 
 ## Your investigation (fill cold)
-Reconstruct the path: which account moved from where to where, and when? RDP or SSH — which log told you? What did they run on the destination in the first minute? Why is *internal-to-internal* authentication the signal, versus the external brute force in S01? Could you chain this to the earlier case (same credential)?
+Reconstruct the path: which account moved from where to where, and when? RDP or SSH? Which log told you? What did they run on the destination in the first minute? Why is *internal-to-internal* authentication the signal, versus the external brute force in S01? Could you chain this to the earlier case (same credential)?
 
 ## Detection engineering
 A rule that flags the same account authenticating to a second host shortly after the first (impossible-travel-lite for a flat lab), or Logon Type 10 / SSH-accept where the source is an internal asset that shouldn't be initiating admin sessions. Ship the cross-host correlation.

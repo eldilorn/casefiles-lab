@@ -26,12 +26,12 @@ Revert to `baseline`.
 
 ## What telemetry this generates
 - **Sysmon Event 1** (process create): full command line, parent process, hashes. Encoded `-enc` blobs and `DownloadString` are the tells.
-- **Sysmon Event 3** (network connect): `powershell.exe` making an outbound TCP connection to `10.10.10.5:80` — PowerShell talking to the internet is abnormal.
+- **Sysmon Event 3** (network connect): `powershell.exe` making an outbound TCP connection to `10.10.10.5:80`. PowerShell talking to the internet is abnormal.
 - **PowerShell 4104**: the *decoded* script block, so even the `-enc` variant reveals its true content here.
 - **Wazuh**: Sysmon + PowerShell decoders raise process-creation and script-block alerts.
 
 ## Your investigation (fill cold)
-Decode the command (4104 gives it to you). Did it reach out, to where, and did the download succeed (Event 3 + your kali access log)? What's the parent process — how did PowerShell get launched? Benign or malicious, and what's your confidence? If it was `-enc`, note that the encoding didn't hide it from 4104 — that's a detection lesson.
+Decode the command (4104 gives it to you). Did it reach out, to where, and did the download succeed (Event 3 + your kali access log)? What's the parent process, and how did PowerShell get launched? Benign or malicious, and what's your confidence? If it was `-enc`, note that the encoding didn't hide it from 4104. That's a detection lesson.
 
 ## Detection engineering
 A rule on `powershell.exe` with `-enc`/`-EncodedCommand`, `DownloadString`/`DownloadFile`/`IEX`, or a network connection to a non-corporate IP. Best: correlate Sysmon 1 (cradle command) → Sysmon 3 (egress) → Sysmon 1 (child spawned by the stage). Ship the command-line rule.

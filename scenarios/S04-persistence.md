@@ -37,14 +37,14 @@ Revert to `baseline` (or `crontab -r`, `systemctl disable --now sysupdate.timer`
 
 ## What telemetry this generates
 - **auditd** `persistence` watch: writes to `/etc/crontab`, `/etc/cron.d/`, `/etc/systemd/system/`.
-- **Wazuh**: FIM/auditd alerts on the new cron file or unit; each *firing* of the job shows up as a repeating `curl`/script exec in the auditd `exec` stream — the beacon interval is visible in the log cadence.
+- **Wazuh**: FIM/auditd alerts on the new cron file or unit. Each *firing* of the job shows up as a repeating `curl`/script exec in the auditd `exec` stream, so the beacon interval is visible in the log cadence.
 - `journalctl -u sysupdate.timer` and `systemctl list-timers` show the schedule if you pivot on the host.
 
 ## Your investigation (fill cold)
-cron or systemd? What's the payload and where does it call out? What's the beacon interval (read it from the log cadence, not the config)? When was persistence established relative to the initial foothold? Would a reboot clear it — or is it enabled at boot?
+cron or systemd? What's the payload and where does it call out? What's the beacon interval (read it from the log cadence, not the config)? When was persistence established relative to the initial foothold? Would a reboot clear it, or is it enabled at boot?
 
 ## Detection engineering
-Auditd/FIM high-severity on any create/modify under `/etc/cron*`, `/etc/systemd/system/`, and per-user crontabs — plus, harder and better, a rule that flags a *new* process beaconing on a fixed interval. Ship the file-create rule at minimum.
+Auditd/FIM high-severity on any create/modify under `/etc/cron*`, `/etc/systemd/system/`, and per-user crontabs. A harder rule that flags a *new* process beaconing on a fixed interval is better still. Ship the file-create rule at minimum.
 
 <details>
 <summary>Grading key — do not open until your verdict is written</summary>
