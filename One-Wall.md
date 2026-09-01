@@ -23,24 +23,11 @@ Every day, one markdown file gets written, **committed, and pushed** to the publ
 
 *(The playbook repo gets committed whenever you tune a scenario or edit the plan, not on a daily clock. Only the case file is a daily obligation.)*
 
-**The template (same headings every day, the investigation spine):**
-
-```
-# YYYY-MM-DD — [title]
-## The question
-## Indicator / subject
-## What I did (pivots/tools, in order)
-## What I found
-## Verdict & confidence
-## One thing I learned
-## Tomorrow's first move
-```
-
-Canonical copy with prompts: `cases/TEMPLATE.md` in the public repo. If that file and this list ever drift, the template file wins, but the seven headings are the spine and don't change.
+**The template.** The same seven-heading spine every day. It's laid out in `Daily-Case-Files.md`, and the canonical copy with prompts is `cases/TEMPLATE.md` in the public repo. That file is the authority if anything ever drifts; the seven headings are the spine and don't change.
 
 **The completion rule.** Committed and pushed means complete. The rep happens in the morning, before the shift. It's the warm-up for the job. Minimum acceptable file: five sentences, 15 minutes. "Inconclusive, ran out of time, next pivot would be X" counts fully. A good session you didn't write up counts as zero. An unpushed file counts as zero. If a morning blows up, the evening is the recovery window, but it's the fallback, never the plan.
 
-**The night-before rule (now a lab action).** 60 seconds before bed, stage tomorrow. Best case: run `./lab/dealer.sh`. It deals a randomized scenario, fires it against the range, and **seals** the ground truth to `lab/.groundtruth/` (git-ignored) so morning-you investigates blind, exactly like a real shift. Minimum case: open tomorrow's file with date, title, and the "first move" line filled in. Either way, morning-you never decides what to do. Deciding happens the night before. Morning-you only investigates.
+**The night-before rule (now a lab action).** 60 seconds before bed, stage tomorrow. Best case: run `./lab/dealer.sh` from Barad-dûr, which fires a randomized scenario and **seals** the ground truth so morning-you investigates blind, exactly like a real shift. The full staging loop, and the `--dry-run` mode for before the range is built, are in `Daily-Case-Files.md`. Minimum case: open tomorrow's file with date, title, and the "first move" line filled in. Either way, morning-you never decides what to do. Deciding happens the night before. Morning-you only investigates.
 
 **The ceiling rule.** 45 minutes, hard stop, timer running. Stopping mid-investigation and writing "next pivot: X" is not failure. It's the practice working. The 15-minute rough file is not a degraded version of the practice. It is the practice.
 

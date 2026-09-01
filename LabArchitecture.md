@@ -1,32 +1,33 @@
 # SecOps Lab
 
-A simple reference for my home security lab. This will grow as I add more VMs, Docker containers, and services.
+A reference for my home security lab. This grows as I add VMs, containers, and services. Palantir is moving from VMware on Windows Home to Proxmox; the diagram and tables below reflect the target state. To build it, follow Lab-Buildout.md. This document supersedes the interim Lab.md.
 
 ## Current Setup
 
 ```
 Internet
    |
-ISP Router
+Verizon Router
    |
-Minas Tirith (UniFi Cloud Gateway)
+Minas Tirith (UniFi Cloud Gateway, 192.168.45.1)
    |
-Osgiliath (8-port UniFi PoE switch)
+Osgiliath (UniFi 8-port PoE switch, 192.168.45.84)
    |
-   +-- Amon Sûl (UniFi AP)
+   +-- Amon Sûl (UniFi AP, 192.168.45.118)
    |      |
-   |      +-- Rivendell (Omarchy Linux laptop)
+   |      +-- Rivendell (Omarchy Linux laptop, 192.168.45.63)   <- I work here
    |
-   +-- Palantir (VMware Workstation Pro host)
+   +-- Palantir (Proxmox host, 192.168.45.49)
           |
-          +-- SIEM-01
-          +-- SecOps Lab
-          +-- Future VMs and containers
+          +-- Amon Hen  (Wazuh manager, 192.168.45.53)
+          +-- Erebor    (Windows 11 victim, 192.168.45.73)
+          +-- Moria     (Ubuntu victim, 192.168.45.74)
+          +-- Barad-dûr (Kali attacker, 192.168.45.75)
 ```
 
-The UniFi gateway is double NATed behind the Verizon router(not ideal but will have to do for now due to no cable runs from the basement). I mainly interact with the homelab on my laptop running Omarchy. If I am remote, I use WireGuard to connect into the lab.
+The UniFi gateway is double-NATed behind the Verizon router (not ideal, but there are no cable runs from the basement yet). I mainly work from the Omarchy laptop. When remote, I use WireGuard to reach the lab.
 
-The lab network and regular home network cannot directly reach each other.
+The lab network and the regular home network cannot reach each other. Everything in the range lives on the one lab network, which is already walled off from home at the gateway. That segment is the isolation boundary: attacks happen inside it and touch nothing outside it.
 
 ## Networks
 
@@ -35,24 +36,38 @@ The lab network and regular home network cannot directly reach each other.
 | `192.168.45.0/24` | SecOps lab network behind the UniFi gateway |
 | `192.168.2.0/24` | WireGuard VPN network used to access the lab |
 
-
 ## Devices
 
-| Name | Type | IP | Notes |
+| Display name | Type | IP | Notes |
 |---|---|---:|---|
 | Minas Tirith | UniFi Cloud Gateway | 192.168.45.1 | Lab router and firewall |
 | Osgiliath | UniFi 8-port PoE switch | 192.168.45.84 | Connected to Minas Tirith |
 | Amon Sûl | UniFi Access Point | 192.168.45.118 | Lab wireless; connected to Osgiliath |
-| Palantir | Main lab desktop | `192.168.45.49` | Runs VMware Workstation Pro; remote access through RustDesk |
-| Rivendell | Omarchy Linux laptop | `192.168.45.63` | On the lab network via Amon Sûl |
-| SIEM-01 | Ubuntu Server VM | `192.168.45.53` | Wazuh all-in-one server |
-| SecOps Lab | Windows 11 Pro VM | `192.168.45.73` | Wazuh agent installed |
+| Palantir | Proxmox host | 192.168.45.49 | Was VMware on Windows Home; now the hypervisor for the whole range |
+| Rivendell | Omarchy Linux laptop | 192.168.45.63 | On the lab network via Amon Sûl |
+| Amon Hen | Wazuh manager (Ubuntu) | 192.168.45.53 | Was SIEM-01. Dashboard on 443. Blocked outbound at the gateway |
+| Erebor | Windows 11 victim | 192.168.45.73 | Was "SecOps Lab". Wazuh agent + Sysmon |
+| Moria | Ubuntu victim | 192.168.45.74 | New. Wazuh agent + auditd |
+| Barad-dûr | Kali attacker | 192.168.45.75 | New. No agent. My toolbox and C2 |
 
-## SIEM-01
+Hostnames stay plain ASCII and lowercase (amon-hen, erebor, moria, barad-dur) even where the display names keep accents.
+
+## Scenario IP mapping
+
+The scenario files use placeholder addresses on 10.10.10.x. Read them against the real lab IPs; nothing in the scenarios needs editing if you substitute:
+
+| Scenario placeholder | Real host | Real IP |
+|---|---|---|
+| 10.10.10.10 (wazuh) | Amon Hen | 192.168.45.53 |
+| 10.10.10.20 (vic-lin) | Moria | 192.168.45.74 |
+| 10.10.10.30 (vic-win) | Erebor | 192.168.45.73 |
+| 10.10.10.5 (attacker) | Barad-dûr | 192.168.45.75 |
+
+## Amon Hen (Wazuh)
 
 ### UniFi firewall
 
-SIEM-01 is blocked from initiating outbound internet traffic.
+Amon Hen is blocked from initiating outbound internet traffic, scoped to its IP. Apply this rule after Wazuh is installed, since the install itself needs internet.
 
 ```text
 Action: Deny
@@ -61,9 +76,7 @@ Destination: Internet
 Direction: Outbound
 ```
 
-The rule is scoped only to the SIEM-01 IP.
-
-### Ubuntu firewall
+### Host firewall (ufw)
 
 ```bash
 sudo ufw default deny incoming
@@ -74,7 +87,7 @@ sudo ufw allow from 192.168.2.0/24 to any port 443 proto tcp
 sudo ufw allow from 192.168.2.0/24 to any port 1514 proto tcp
 sudo ufw allow from 192.168.2.0/24 to any port 1515 proto tcp
 
-# Local lab access
+# Local lab access (agents live on this network)
 sudo ufw allow from 192.168.45.0/24 to any port 22 proto tcp
 sudo ufw allow from 192.168.45.0/24 to any port 443 proto tcp
 sudo ufw allow from 192.168.45.0/24 to any port 1514 proto tcp
@@ -93,40 +106,118 @@ sudo ufw status numbered
 | `1514/TCP` | Wazuh agent communication |
 | `1515/TCP` | Wazuh agent enrollment |
 
+The victims (Moria, Erebor) run the Wazuh agent and reach the manager on the lab network at 192.168.45.53. Barad-dûr runs no agent.
+
+## Telemetry the scenarios need
+
+Stock Wazuh reads syslog, auth logs, and does file integrity monitoring, which covers the simplest Linux scenarios. The interesting ones need endpoint telemetry that stock Wazuh doesn't ship. Skipping this is the usual reason an attack "doesn't show up."
+
+### Moria (Linux): auditd
+
+```bash
+sudo apt install -y auditd audispd-plugins
+sudo tee /etc/audit/rules.d/lab.rules >/dev/null <<'RULES'
+-a always,exit -F arch=b64 -S execve -k exec
+-w /etc/passwd -p wa -k identity
+-w /etc/sudoers -p wa -k identity
+-w /etc/crontab -p wa -k persistence
+-w /etc/systemd/system -p wa -k persistence
+-a always,exit -F arch=b64 -F euid=0 -S setuid -k privesc
+RULES
+sudo augenrules --load && sudo systemctl restart auditd
+```
+
+Then add a localfile block for `audit` in the agent's `/var/ossec/etc/ossec.conf` and restart the agent.
+
+### Erebor (Windows): Sysmon and PowerShell logging
+
+Install Sysmon with a maintained config (SwiftOnSecurity or Olaf Hartong), then point the agent at the channels by adding to its `ossec.conf`:
+
+```xml
+<localfile>
+  <location>Microsoft-Windows-Sysmon/Operational</location>
+  <log_format>eventchannel</log_format>
+</localfile>
+<localfile>
+  <location>Microsoft-Windows-PowerShell/Operational</location>
+  <log_format>eventchannel</log_format>
+</localfile>
+```
+
+Also turn on PowerShell Script Block Logging (event 4104) and Process Creation auditing with command line (event 4688) via local policy.
+
+### Prove it before trusting it
+
+After wiring a box, do the smallest test. On Erebor, open Notepad and confirm a process-creation event lands in the dashboard. On Moria, run a command and confirm the execve appears. If the test event doesn't show, fix that before writing any case file, or you'll conclude an attack was invisible when the agent just wasn't reading the channel.
+
+## Snapshot discipline
+
+Non-negotiable, because a dirty victim poisons the next case's ground truth.
+
+1. Snapshot every victim clean before any scenario, named `baseline`.
+2. Run the scenario.
+3. Investigate from the telemetry, not by poking the live box.
+4. Revert to `baseline`. Every time.
+
+## Safety rules
+
+Nothing leaves the lab. No attacks, scans, or payloads pointed at anything I don't own. The lab segment is the boundary.
+
+Attack tooling stays in the lab. Kali's toolbox, Atomic Red Team, C2 frameworks are fine here because I own the range.
+
+Fake credentials only. Never seed the lab with a real password, token, or data used anywhere else.
+
+Live malware is graduate-only. For real samples, spin a disposable VM with no internet, snapshot it, and hard-revert after. On Proxmox that means an internal-only bridge with no uplink, created just for that VM, so the sample can't reach the lab network or the internet. Never on a baseline I reuse.
+
+Ground truth stays sealed until the verdict is written.
+
+## What runs once the range is built
+
+Windows scenarios (S05 PowerShell cradle, S06 LOLBins, S07 LSASS, Windows half of S08) run once Erebor has Sysmon wired. Early on these don't even need Barad-dûr; the laptop can host the file the cradle downloads.
+
+Linux scenarios (S01 SSH brute force, S02 privesc, S03 web shell, S04 persistence, S09 DNS exfil) run once Moria has auditd wired and Barad-dûr exists.
+
+S08 in full wants both victims plus, later, a domain controller. S10 wants the small LLM app from learning-track stage 2.
+
+## Staging attacks against the range
+
+I don't run attacks by hand each morning. A dealer script on Barad-dûr does it the night before. It picks a scenario, randomizes the parameters (which account, whether it succeeds, timing jitter, benign noise alongside), fires it against the victims over SSH, and seals the ground truth to a file I don't open until my verdict is written. Morning-me investigates the telemetry cold, the same as a real shift.
+
+```bash
+./lab/dealer.sh --scenario S05 --dry-run   # print the plan, touch nothing
+./lab/dealer.sh                            # random scenario, fire it, seal it
+```
+
+The script reads the real addresses above from `lab/lab.env`, and each attack lives in its own runner under `lab/runners/`. The setup, the telemetry each scenario generates, and the prerequisites are documented alongside the scenarios themselves. Until every box is wired, `--dry-run` prints exactly what would happen without touching anything, which is also the fastest way to review a scenario.
+
 ## Remote Access
 
-- Connect to the UniFi gateway through WireGuard.
-- Use SSH to manage SIEM-01.
-- Use a browser to access the Wazuh dashboard.
-- Use RustDesk to access Palantir because it runs Windows Home and cannot host normal Windows RDP.(This is changing soon as I am going to wipe Palantir and install Proxmox.)
+Connect over WireGuard when away, then:
+- Proxmox web UI at https://192.168.45.49:8006 to manage the host and VMs.
+- Proxmox's built-in console to reach any VM (this replaces RustDesk; Palantir no longer runs Windows Home).
+- SSH to Amon Hen for management, browser to https://192.168.45.53 for the dashboard.
 
 ## Adding New Systems
 
-Add new VMs and containers here as the lab grows.
-
-| Name | Type | IP | Purpose | Status |
+| Display name | Type | IP | Purpose | Status |
 |---|---|---:|---|---|
-|  | VM / Container |  |  | Planned |
-|  | VM / Container |  |  | Planned |
-|  | VM / Container |  |  | Planned |
+| Minas Morgul | Windows Server VM | 192.168.45.76 | Domain controller for full S08 lateral movement | Planned |
+| (LLM host) | Linux VM | 192.168.45.77 | Small LLM app for S10 | Planned |
 |  | VM / Container |  |  | Planned |
 
 ## Possible Future Additions
 
 - Docker host
-- Vulnerable practice targets
-- Windows domain controller
-- Linux endpoints
-- Security Onion or another monitoring platform
-- Automation and reporting services
+- Additional vulnerable targets
+- Windows domain controller (Minas Morgul)
+- Security Onion or another monitoring platform alongside Wazuh
 - Backup server
-- Separate management or server VLANs
+- Separate management VLAN, if I outgrow the flat lab net
 
 ## Notes and Changes
 
-Use this section for quick updates.
-
 ```text
-YYYY-MM-DD - Change made
-2026-09-01 - Added Amon Sûl (UniFi AP, 192.168.45.118) and Rivendell (Omarchy Linux laptop, 192.168.45.63)
+2026-09-01 - Added Amon Sûl (UniFi AP, .118) and Rivendell (laptop, .63)
+2026-09-01 - Planned Palantir wipe to Proxmox; renamed VMs to LOTR (Amon Hen, Erebor);
+             added Moria (.74) and Barad-dûr (.75). See Lab-Buildout.md.
 ```

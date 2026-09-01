@@ -35,7 +35,7 @@ Full template with homelab prompts: `cases/TEMPLATE.md` in the repo.
 
 **Timing:** morning, before the shift. 15 minutes minimum, 45 maximum, hard stop. The staging happens the night before, but staging is now a lab action, not a copy-paste. See below.
 
-**Completion:** committed means complete. "Inconclusive, ran out of time, next pivot would be X" counts fully. A verdict you can't reach is still a case file, so write why you can't reach it. If you couldn't tell whether the attack succeeded from the logs alone, **that is the finding**: it means your detection has a blind spot, and naming the blind spot is the rep.
+**Completion:** the rule lives in One Wall (committed and pushed means complete; inconclusive still counts). What's specific to a homelab rep: a verdict you can't reach is still a case file, so write why you can't reach it. If you couldn't tell whether the attack succeeded from the logs alone, **that is the finding**: your detection has a blind spot, and naming it is the rep.
 
 ---
 
@@ -43,7 +43,7 @@ Full template with homelab prompts: `cases/TEMPLATE.md` in the repo.
 
 Morning-you never decides and never runs attacks against a clock. **Evening-you, or the dealer, seeds the telemetry, and morning-you investigates it blind.** Three ways to stage, in order of preference:
 
-1. **The dealer (best).** Run `lab/dealer.sh` the night before. It picks a random scenario, randomizes the parameters (source IP, usernames, timing, whether the attack succeeds), fires some benign noise alongside, executes it against the lab, and writes the ground truth to a **sealed** file you don't open (`lab/.groundtruth/`, git-ignored). Morning-you sees only Wazuh alerts and logs, the same as a real shift, and grades against the sealed file after writing the verdict.
+1. **The dealer (best).** Run `lab/dealer.sh` from Barad-dûr the night before. It picks a random scenario, randomizes the parameters (source IP, usernames, timing, whether the attack succeeds), fires some benign noise alongside, executes it against the victims over SSH, and writes the ground truth to a **sealed** file you don't open (`lab/.groundtruth/`, git-ignored, staying on the attacker box). Morning-you sees only Wazuh alerts and logs, the same as a real shift, and grades against the sealed file after writing the verdict. It reads the real range addresses from `lab/lab.env`; `--dry-run` prints the plan without touching a box, which is how you check a scenario or work before the range exists.
 2. **Batch and forget.** On a weekend, run five or six scenarios in one sitting with the dealer, sealed. Investigate them across the week. By Wednesday you've forgotten which fired when, so the timeline reconstruction is real again.
 3. **Manual, cold-enough.** Pick a scenario, run it with randomized params yourself, then don't look at the answer section. This is the weakest option, since you know the family, but the specifics (did it succeed? which account? what time? was there noise?) are still yours to reconstruct.
 

@@ -9,7 +9,7 @@ This is the case file that ties both tracks together: an AI attack you run in yo
 
 ## Lab setup
 - A small LLM app on a lab VM: your Stage-2 agent, or Ollama + a thin app with (a) access to some "private" seeded data and (b) a tool that can make an outbound request (the exfil path). Log every prompt, tool call, and outbound request.
-- Egress capture: `tcpdump -w /cases/s10.pcap` on the app VM, pointed at the attacker's collector on `10.10.10.5`.
+- Egress capture: `tcpdump -w ~/captures/s10.pcap` on the app VM, pointed at the attacker's collector on `10.10.10.5`. Keep the pcap on the VM; it stays lab-local and never goes to the public cases repo.
 
 ## Run it
 Plant an **indirect** injection in content the agent will read (a note in the RAG corpus, a file it's asked to summarize, a web page it fetches):
