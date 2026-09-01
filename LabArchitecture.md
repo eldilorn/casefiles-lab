@@ -4,10 +4,10 @@ A simple reference for my home security lab. This will grow as I add more VMs, D
 
 ## Current Setup
 
-```text
+```
 Internet
    |
-Verizon Router
+ISP Router
    |
 Minas Tirith (UniFi Cloud Gateway)
    |
@@ -24,7 +24,7 @@ Osgiliath (8-port UniFi PoE switch)
           +-- Future VMs and containers
 ```
 
-The UniFi gateway is double NATed behind the Verizon router. I use WireGuard to connect into the lab remotely.
+The UniFi gateway is double NATed behind the Verizon router(not ideal but will have to do for now due to no cable runs from the basement). I mainly interact with the homelab on my laptop running Omarchy. If I am remote, I use WireGuard to connect into the lab.
 
 The lab network and regular home network cannot directly reach each other.
 
@@ -98,7 +98,7 @@ sudo ufw status numbered
 - Connect to the UniFi gateway through WireGuard.
 - Use SSH to manage SIEM-01.
 - Use a browser to access the Wazuh dashboard.
-- Use RustDesk to access Palantir because it runs Windows Home and cannot host normal Windows RDP.
+- Use RustDesk to access Palantir because it runs Windows Home and cannot host normal Windows RDP.(This is changing soon as I am going to wipe Palantir and install Proxmox.)
 
 ## Adding New Systems
 
