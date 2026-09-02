@@ -16,6 +16,8 @@
 
 **"Can AI Do My Job?" piece.** An honest look at what an LLM can and can't do in a SOC seat, from someone doing both tracks. Strongest after the AI-security Learning Track has real reps behind it.
 
+**Explore Kali Purple** How is it for getting hands-on SOC experience.
+
 ## In progress (not queued, already underway)
 
 - Rebuild the homelab onto a Proxmox server and rebuild Wazuh from scratch. Procedure: `Lab-Buildout.md`. Target state: `LabArchitecture.md`.
