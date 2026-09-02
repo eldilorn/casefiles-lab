@@ -43,14 +43,14 @@ The lab network and the regular home network cannot reach each other. Everything
 | Minas Tirith | UniFi Cloud Gateway | 192.168.45.1 | Lab router and firewall |
 | Osgiliath | UniFi 8-port PoE switch | 192.168.45.84 | Connected to Minas Tirith |
 | Amon Sûl | UniFi Access Point | 192.168.45.118 | Lab wireless; connected to Osgiliath |
-| Palantir | Proxmox host | 192.168.45.49 | Was VMware on Windows Home; now the hypervisor for the whole range |
+| Palantir | Proxmox host | 192.168.45.49 | 16 cores / 64GB / ~2TB. The hypervisor for the whole range |
 | Rivendell | Omarchy Linux laptop | 192.168.45.63 | On the lab network via Amon Sûl |
-| Amon Hen | Wazuh manager (Ubuntu) | 192.168.45.53 | Was SIEM-01. Dashboard on 443. Blocked outbound at the gateway |
-| Erebor | Windows 11 victim | 192.168.45.73 | Was "SecOps Lab". Wazuh agent + Sysmon |
-| Moria | Ubuntu victim | 192.168.45.74 | New. Wazuh agent + auditd |
-| Barad-dûr | Kali attacker | 192.168.45.75 | New. No agent. My toolbox and C2 |
+| Amon Hen | Wazuh manager (Ubuntu) | 192.168.45.53 | 4 vCPU / 12GB / 60GB. Was SIEM-01. Dashboard on 443. Blocked outbound. The RAM-hungry box |
+| Erebor | Windows 11 victim | 192.168.45.73 | 4 vCPU / 8GB / 60GB. Was "SecOps Lab". Agent + Sysmon. SATA disk, E1000 NIC |
+| Moria | Ubuntu victim | 192.168.45.74 | 2 vCPU / 4GB / 25GB. New. Agent + auditd |
+| Barad-dûr | Kali attacker | 192.168.45.75 | 2 vCPU / 4GB / 40GB. New. No agent. My toolbox and C2 |
 
-Hostnames stay plain ASCII and lowercase (amon-hen, erebor, moria, barad-dur) even where the display names keep accents.
+Hostnames stay plain ASCII and lowercase (amon-hen, erebor, moria, barad-dur) even where the display names keep accents. VM disks live on the NVMe thin pool, not local-lvm. All four running is ~30GB RAM against 64GB, leaving room for the planned domain controller and LLM host.
 
 ## Scenario IP mapping
 
@@ -178,17 +178,6 @@ Windows scenarios (S05 PowerShell cradle, S06 LOLBins, S07 LSASS, Windows half o
 Linux scenarios (S01 SSH brute force, S02 privesc, S03 web shell, S04 persistence, S09 DNS exfil) run once Moria has auditd wired and Barad-dûr exists.
 
 S08 in full wants both victims plus, later, a domain controller. S10 wants the small LLM app from learning-track stage 2.
-
-## Staging attacks against the range
-
-I don't run attacks by hand each morning. A dealer script on Barad-dûr does it the night before. It picks a scenario, randomizes the parameters (which account, whether it succeeds, timing jitter, benign noise alongside), fires it against the victims over SSH, and seals the ground truth to a file I don't open until my verdict is written. Morning-me investigates the telemetry cold, the same as a real shift.
-
-```bash
-./lab/dealer.sh --scenario S05 --dry-run   # print the plan, touch nothing
-./lab/dealer.sh                            # random scenario, fire it, seal it
-```
-
-The script reads the real addresses above from `lab/lab.env`, and each attack lives in its own runner under `lab/runners/`. The setup, the telemetry each scenario generates, and the prerequisites are documented alongside the scenarios themselves. Until every box is wired, `--dry-run` prints exactly what would happen without touching anything, which is also the fastest way to review a scenario.
 
 ## Remote Access
 
