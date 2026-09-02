@@ -16,6 +16,18 @@ One Proxmox host on the lab network, four VMs on the same network, all reachable
 
 Everything sits on 192.168.45.0/24 behind the UniFi gateway, which already isolates the lab from the home network. One virtual bridge (vmbr0) is all you need. There's no separate attack subnet; the whole lab segment is the boundary. (If you later work with live malware, make a throwaway internal-only bridge just for that VM, per the safety note in LabArchitecture.md.)
 
+## Host capacity and how to size VMs
+
+Palantir has 16 CPU cores, 64GB RAM, and ~2TB of datastore. That's roomy for this lab, so the constraint is comfort, not scarcity. Two rules keep it sane:
+
+RAM is reserved, not shared. Memory handed to a running VM is genuinely taken from the host until that VM shuts down. So the sum of RAM across running VMs must stay under 64GB (leave a couple GB for Proxmox itself).
+
+Cores are shared. VMs draw from the same 16 cores and share them when idle, so you can assign more total vCPUs than 16 across all VMs without a problem; just don't give one box more cores than it needs.
+
+The principle: size each VM to its workload, not to the host. The host's size tells you the plan fits (it does, easily), but each VM still gets only what its role needs. Over-assigning RAM wastes it; over-assigning cores adds scheduling overhead. The one box worth spending surplus on is Amon Hen, because Wazuh's indexer is a Java search database that genuinely benefits from more RAM.
+
+Planned totals with all four running: roughly 12–16 + 8 + 4 + 4 = ~30GB RAM committed against 64GB, under half. That leaves headroom for the later boxes (a domain controller, an LLM host) and lets you run everything at once without thinking about it.
+
 ## Before you wipe anything
 
 The VMs on Palantir are about to be destroyed. Make sure nothing important lives only there. Your playbook, scenarios, and case files should already be in git or on Rivendell. If any config or notes live only inside the current SIEM-01 or Windows VM, copy them to the laptop now.
@@ -79,10 +91,10 @@ In the UI: node `palantir`, `local` storage, ISO Images, Upload. Upload the four
 Create VM:
 - Name: amon-hen
 - ISO: Ubuntu Server
-- System: defaults (SeaBIOS is fine for Linux)
-- Disk: 60GB (the indexer wants room)
-- CPU: 4 cores
-- Memory: 8192 MB (8GB minimum; more if the host allows)
+- System: defaults (SeaBIOS is fine for Linux); tick Qemu Agent
+- Disk: 60GB on the NVMe thin pool (not local-lvm; the indexer accumulates log data)
+- CPU: 1 socket, 4 cores
+- Memory: 12288 MB (12GB). This is the box worth spending surplus RAM on; 8GB is the bare floor, 12–16GB is where the indexer stays smooth as log volume grows. 16384 (16GB) is fine too.
 - Network: vmbr0
 
 Install Ubuntu. Set a static address: 192.168.45.53/24, gateway 192.168.45.1, DNS 192.168.45.1.
@@ -97,9 +109,9 @@ Create VM:
 - Name: erebor
 - ISO: Windows 11
 - System: BIOS = OVMF (UEFI), Machine = q35, add an EFI disk, and add a TPM (TPM State, v2.0). Windows 11 refuses to install without UEFI and a TPM.
-- Disk: 60GB, bus = SATA for a simple install (VirtIO is faster but needs the driver ISO during install; skip for now).
-- CPU: 4 cores
-- Memory: 8192 MB (4096 minimum)
+- Disk: 60GB on the NVMe thin pool, bus = SATA for a simple install (VirtIO is faster but needs the driver ISO during install; skip for now).
+- CPU: 1 socket, 4 cores
+- Memory: 8192 MB (8GB). Leave it here even with spare RAM; Windows 11 wants ~8GB to feel normal and this is a victim, not a workhorse. More buys nothing.
 - Network: model Intel E1000 on vmbr0 (E1000 needs no extra drivers)
 
 Install Windows. At the "let's connect you to a network" screen, to make a local account instead of signing into a Microsoft account, press Shift+F10, type `oobe\bypassnro`, Enter; it reboots into a flow that lets you skip the Microsoft sign-in and create a local account. (Keep lab credentials fake.)
@@ -118,9 +130,9 @@ Snapshot as `baseline` (step 10).
 Create VM:
 - Name: moria
 - ISO: Ubuntu Server
-- Disk: 25GB
-- CPU: 2 cores
-- Memory: 2048–4096 MB
+- Disk: 25GB on the NVMe thin pool
+- CPU: 1 socket, 2 cores
+- Memory: 4096 MB (4GB). A Linux victim needs very little; 4GB is comfortable, don't go higher.
 - Network: vmbr0
 
 Install Ubuntu. Static address 192.168.45.74/24, gateway 192.168.45.1. Then:
@@ -136,9 +148,9 @@ Snapshot as `baseline`.
 Create VM:
 - Name: barad-dur
 - ISO: Kali installer
-- Disk: 40GB
-- CPU: 2 cores
-- Memory: 4096 MB
+- Disk: 40GB on the NVMe thin pool
+- CPU: 1 socket, 2 cores
+- Memory: 4096 MB (4GB; bump to 6GB only if you run heavy tooling later)
 - Network: vmbr0
 
 Install Kali. Static address 192.168.45.75/24, gateway 192.168.45.1. Update and install the tools the scenarios lean on (hydra, the Atomic Red Team runner, dnscat2 or iodine, and so on). No Wazuh agent; this is the adversary. Snapshot as `baseline`.
