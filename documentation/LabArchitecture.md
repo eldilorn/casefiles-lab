@@ -177,7 +177,7 @@ Windows scenarios (S05 PowerShell cradle, S06 LOLBins, S07 LSASS, Windows half o
 
 Linux scenarios (S01 SSH brute force, S02 privesc, S03 web shell, S04 persistence, S09 DNS exfil) run once Moria has auditd wired and Barad-dûr exists.
 
-S08 in full wants both victims plus, later, a domain controller. S10 wants the small LLM app from learning-track stage 2.
+S08 in full wants both victims plus, later, a domain controller. S10 wants the small LLM app from Learning Track Stage A2. S11 and S12 want the IdP host, and S12 also wants the LLM app registered against it.
 
 ## Remote Access
 
@@ -192,6 +192,7 @@ Connect over WireGuard when away, then:
 |---|---|---:|---|---|
 | Minas Morgul | Windows Server VM | 192.168.45.76 | Domain controller for full S08 lateral movement | Planned |
 | (LLM host) | Linux VM | 192.168.45.77 | Small LLM app for S10 | Planned |
+| (IdP host) | Linux VM | 192.168.45.78 | Keycloak or Authentik. Lab identity provider for the identity track (S11, S12); logs into Wazuh | Planned |
 |  | VM / Container |  |  | Planned |
 
 ## Possible Future Additions

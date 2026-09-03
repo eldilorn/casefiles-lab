@@ -1,6 +1,6 @@
 # The Queue
 
-*Every new idea lands here in two sentences, then the file closes and today's case file gets done. Nothing here starts until 90 case files exist (YouTube waits for 6–8 roll-ups). The idea isn't killed, it's parked. Rules: `One-Wall.md`.*
+*Every new idea lands here in two sentences, then the file closes and today's case file gets done. Nothing here starts until 90 case files exist (YouTube waits for 6–8 roll-ups). The idea isn't killed, it's parked. Rules: `documentation/One-Wall.md`.*
 
 ## Locked until file 90
 
@@ -18,6 +18,17 @@
 
 **Explore Kali Purple** How is it for getting hands-on SOC experience.
 
+**Agent Identity Solution** Small/Mid sized companies deploying agents.
+There is no security safeguards in place currently, need to limit scope and find IAM solution for agents so they don't run wild.
+
+## Learning-Track work (not gated by file 90, lands when its stage does)
+
+**S11: identity attack against the lab IdP.** MFA fatigue, token replay, consent-phishing, or provisioning abuse run against Keycloak/Authentik in the range, detected in Wazuh. Authored as a scenario once it runs cleanly (Learning Track, Stage I5).
+
+**S12: agent token abuse.** Leak, replay, or over-scope the lab agent's own credential and see what the IdP log and Wazuh show. The merge stage's scenario (Learning Track, Stage I6).
+
+**"Agent identity in a homelab" roll-up.** The delegation chain, where scope narrowed, where attribution broke, and what caught it. The strongest thing the track can produce; it is a roll-up, not a new project.
+
 ## In progress (not queued, already underway)
 
-- Rebuild the homelab onto a Proxmox server and rebuild Wazuh from scratch. Procedure: `Lab-Buildout.md`. Target state: `LabArchitecture.md`.
+- Rebuild the homelab onto a Proxmox server and rebuild Wazuh from scratch. Procedure: `Lab-Buildout.md`. Target state: `documentation/LabArchitecture.md`.

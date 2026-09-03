@@ -62,7 +62,7 @@ A bare alert is an answer with no question. A case file starts with something ge
 1. **The scenario library (`scenarios/`).** Ten runnable, MITRE-mapped attack scenarios on a difficulty ladder, from SSH brute force to prompt-injection exfil. Each is a self-contained lab: story, setup, exact run commands, cleanup, and where the telemetry lands. This is day-one material and the core of the repo.
 2. **The dealer, on random.** Once the library feels familiar, let `dealer.sh` choose. Not knowing the scenario going in is the closest thing to a real alert.
 3. **Your own scenarios.** When a technique catches your eye (something from an ATT&CK page, a DFIR Report section, a CVE writeup) rebuild it as a new file in `scenarios/` using the template. Authoring the attack teaches as much as investigating it. This is how the library grows past ten.
-4. **Learning-Track crossovers (`Stage 4–5`).** A Gandalf solve, a PortSwigger LLM lab, or an injection against your own homelab app. Each is a legitimate daily rep, and several belong in `scenarios/` as reproducible labs (see S10).
+4. **Learning-Track crossovers (Stages A4, A5, I5, I6).** A Gandalf solve, a PortSwigger LLM lab, an identity attack against the lab IdP, or an injection against your own scoped agent. Each is a legitimate daily rep, and several belong in `scenarios/` as reproducible labs (S10 today, S11 and S12 once the identity stages run).
 5. **The DFIR Report / CISA advisories, rebuilt in-lab.** Read one section, pick one technique, and reproduce it in the homelab instead of just pivoting on their IOCs. Your file is the detection you wrote against your own reproduction, not their indicators.
 6. **Real feeds (ThreatFox · URLhaus · OpenPhish), graduate material.** Detonate a live sample in an **isolated, no-egress** lab VM and hunt the telemetry. Only once your lab hygiene (snapshots, network isolation, revert discipline) is second nature. This isn't day-one material, which is why it's last. Lab safety rules: `lab/SETUP.md`.
 
@@ -94,7 +94,7 @@ Outside the lab, when a scenario borrows a real indicator: VirusTotal · urlscan
 - **The standard:** one scenario, run and investigated end to end.
 - **The blind draw:** the dealer picked it, and you don't know the family until the logs tell you. The hardest and most valuable variant.
 - **The detection rep:** no new attack. Take a past case's telemetry and write the rule that would have caught it, then test that the rule fires. Pure detection engineering. Counts fully.
-- **The learning crossover:** a Learning-Track concept in your own words, or an AI-security lab (S10-style). Optional, never required.
+- **The learning crossover:** a Learning-Track concept in your own words, an AI-security lab (S10-style), or an identity attack against the lab IdP. Optional, never required.
 - **The recovery rep:** three sentences after a missed day. Exists so the streak survives. Never miss twice.
 - **The deep case:** a multi-day investigation, a full intrusion chain across several scenarios (recon → foothold → privesc → lateral → exfil). Each day's file is that day's pivots and tomorrow's first move. One case spread across several files.
 

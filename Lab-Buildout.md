@@ -1,6 +1,6 @@
 # Lab Buildout
 
-The one-time procedure to rebuild the range on Proxmox, using the existing lab network (192.168.45.0/24) and the documented IPs. You wipe Palantir, install Proxmox, and create four VMs on the flat lab network. When you're done you'll have a working range with baseline snapshots. After this, LabArchitecture.md is the doc you keep open.
+The one-time procedure to rebuild the range on Proxmox, using the existing lab network (192.168.45.0/24) and the documented IPs. You wipe Palantir, install Proxmox, and create four VMs on the flat lab network. When you're done you'll have a working range with baseline snapshots. After this, documentation/LabArchitecture.md is the doc you keep open.
 
 Budget a few evenings, not one. Proxmox installs quickly; the four VMs and their telemetry wiring are the real time.
 
@@ -14,7 +14,7 @@ One Proxmox host on the lab network, four VMs on the same network, all reachable
 - Moria, Ubuntu victim, 192.168.45.74
 - Barad-dûr, Kali attacker, 192.168.45.75
 
-Everything sits on 192.168.45.0/24 behind the UniFi gateway, which already isolates the lab from the home network. One virtual bridge (vmbr0) is all you need. There's no separate attack subnet; the whole lab segment is the boundary. (If you later work with live malware, make a throwaway internal-only bridge just for that VM, per the safety note in LabArchitecture.md.)
+Everything sits on 192.168.45.0/24 behind the UniFi gateway, which already isolates the lab from the home network. One virtual bridge (vmbr0) is all you need. There's no separate attack subnet; the whole lab segment is the boundary. (If you later work with live malware, make a throwaway internal-only bridge just for that VM, per the safety note in documentation/LabArchitecture.md.)
 
 ## Host capacity and how to size VMs
 
@@ -99,7 +99,7 @@ Create VM:
 
 Install Ubuntu. Set a static address: 192.168.45.53/24, gateway 192.168.45.1, DNS 192.168.45.1.
 
-Install Wazuh (all-in-one manager, indexer, dashboard) per Wazuh's quickstart while the box still has internet. Then apply the ufw rules from LabArchitecture.md, and only after the install finishes, add the UniFi outbound-deny rule for 192.168.45.53. Confirm the dashboard loads from the laptop at https://192.168.45.53.
+Install Wazuh (all-in-one manager, indexer, dashboard) per Wazuh's quickstart while the box still has internet. Then apply the ufw rules from documentation/LabArchitecture.md, and only after the install finishes, add the UniFi outbound-deny rule for 192.168.45.53. Confirm the dashboard loads from the laptop at https://192.168.45.53.
 
 ## Step 7 — Build Erebor (Windows victim)
 
@@ -120,7 +120,7 @@ After install:
 - Set the static address: 192.168.45.73/24, gateway 192.168.45.1.
 - Windows Update.
 - Install the Wazuh agent, manager address 192.168.45.53.
-- Install Sysmon with a maintained config, add the Sysmon and PowerShell localfile blocks to the agent config, and turn on script block logging and command-line auditing per LabArchitecture.md.
+- Install Sysmon with a maintained config, add the Sysmon and PowerShell localfile blocks to the agent config, and turn on script block logging and command-line auditing per documentation/LabArchitecture.md.
 - Confirm the agent shows Active and that opening Notepad produces a process-creation event in the dashboard.
 
 Snapshot as `baseline` (step 10).
@@ -138,7 +138,7 @@ Create VM:
 Install Ubuntu. Static address 192.168.45.74/24, gateway 192.168.45.1. Then:
 - Update the system.
 - Install the Wazuh agent, manager 192.168.45.53.
-- Install and configure auditd per LabArchitecture.md.
+- Install and configure auditd per documentation/LabArchitecture.md.
 - Confirm the agent shows Active and a test command produces an execve event.
 
 Snapshot as `baseline`.
@@ -165,4 +165,4 @@ The range is built. Don't spend the next two weeks polishing it. Pick one Window
 
 ## Later additions
 
-When they earn a place in the queue: Minas Morgul (a Windows Server domain controller, 192.168.45.76) for full S08, and a small Linux LLM-app host (192.168.45.77) for S10. Add them to the tables in LabArchitecture.md as you go.
+When they earn a place in the queue: Minas Morgul (a Windows Server domain controller, 192.168.45.76) for full S08, and a small Linux LLM-app host (192.168.45.77) for S10. Add them to the tables in documentation/LabArchitecture.md as you go.

@@ -4,7 +4,7 @@ The scenarios in `scenarios/` are written against a generic range so they stay
 portable. This file is that generic contract: the four roles, the placeholder
 addresses, and pointers to the real specifics.
 
-**`LabArchitecture.md` is the source of truth** for my actual range: real
+**`documentation/LabArchitecture.md` is the source of truth** for my actual range: real
 hostnames and IPs, the telemetry wiring (auditd, Sysmon, PowerShell logging),
 the snapshot discipline, and the safety rules. This file does not repeat those;
 it points at them, so the two never drift.
@@ -41,7 +41,7 @@ so nothing in the scenario files needs editing.
 
 ## Telemetry, snapshots, and safety
 
-All in **`LabArchitecture.md`**:
+All in **`documentation/LabArchitecture.md`**:
 
 - **Telemetry the scenarios need** — auditd on the Linux victim, Sysmon and
   PowerShell logging on Windows, and the "prove it before trusting it" test.
@@ -72,7 +72,7 @@ matching runner in `lab/runners/`. See `lab/runners/README.md` for prerequisites
 
 ## What goes to GitHub
 
-Two repos, split by audience (see `One-Wall.md`):
+Two repos, split by audience (see `documentation/One-Wall.md`):
 
 - **Public repo `casefiles`:** only the daily case files (`cases/YYYY-MM-DD.md`),
   the `cases/TEMPLATE.md`, and a light README. This is the wall employers read.
