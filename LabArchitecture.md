@@ -76,7 +76,7 @@ Destination: Internet
 Direction: Outbound
 ```
 
-### Host firewall (ufw)
+### Host firewall (ufw) **These are not current, only Unifi rule in place
 
 ```bash
 sudo ufw default deny incoming
