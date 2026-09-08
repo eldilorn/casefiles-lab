@@ -155,7 +155,7 @@ This is where Lane B becomes case files. Identity attacks need a place to run th
 2. **The attack classes.** MFA fatigue / push bombing · session token theft and replay · OAuth consent phishing and malicious app grants · token and API-key leakage · SCIM and provisioning abuse · privilege escalation through group membership · device-trust bypass · adversary-in-the-middle phishing (evilginx-style, lab only, against the lab IdP only).
 3. **Map to ATT&CK:** T1078 Valid Accounts · T1556 Modify Authentication Process · T1550 Use Alternate Authentication Material · T1528 Steal Application Access Token · T1098 Account Manipulation · T1621 MFA Request Generation.
 4. **Write the detections.** Wazuh rules over the IdP log for each step of at least two chains. Prove each fires against your own attack.
-5. **Author the scenario.** Once an identity attack runs cleanly in the range, it becomes a new file in `scenarios/` using the template (the queued S11). Then it's dealer material and a normal daily rep.
+5. **Author the scenario.** Once an identity attack runs cleanly in the range, it becomes a new file in `scenarios/` using the template (the queued S11). Add it to Draghunt's catalog (mark it `"live": true` once wired), and it's a normal daily rep like any other.
 
 **Checkpoint, cold:** given an IdP log, walk one identity attack chain end to end and name the detection for each step · explain which controls in a tenant would have stopped it at each hop.
 
@@ -185,7 +185,7 @@ The unsolved problem. Everything above was so this stage has something to stand 
 
 - **Crossover reps:** when a concept clicks hard, it may become that morning's case file, in your own words. Optional.
 - **Stage A4, A5, I5, and I6 work generates real case files:** a Gandalf solve, a PortSwigger lab, an identity attack against the lab IdP, an injection against your own scoped agent. Each is legitimate daily-rep material whenever you choose.
-- **New scenarios come out of I5 and I6.** S11 (identity attack against the lab IdP) and S12 (agent token abuse) get authored when they run cleanly, then they're dealer material like any other.
+- **New scenarios come out of I5 and I6.** S11 (identity attack against the lab IdP) and S12 (agent token abuse) get authored when they run cleanly, then they go into Draghunt's catalog like any other.
 - **Roll-ups can draw from both lanes.** "30 days of investigations, plus I hit the I1 checkpoint: here's what an OAuth scope actually protects, from a SOC analyst" is a strong post. The I6 roll-up is the strongest thing this track can produce.
 - **Order rule stands:** don't advance past an unpassed checkpoint. Understanding compounds, speed doesn't.
 

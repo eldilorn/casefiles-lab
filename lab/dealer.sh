@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # dealer.sh — deal a case, fire it against the range, seal the ground truth.
 #
+# NOTE: This is the standalone prototype Draghunt grew out of. In normal use,
+# lay exercises in Draghunt, which dispatches the same runners in lab/runners/
+# and seals the answer key on its own side. Keep dealer.sh for manual runs and
+# for previewing a plan with --dry-run when Draghunt isn't handy.
+#
 # Runs FROM Barad-dûr (the Kali attacker, 192.168.45.75). It:
 #   1. picks a scenario (random, or --scenario Sxx),
 #   2. randomizes the parameters (source IP, account, variant, success, noise,

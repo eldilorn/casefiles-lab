@@ -1,6 +1,6 @@
 # Scenario Library
 
-These are ten attack scenarios I can run against the homelab range (`lab/SETUP.md`). Each one is self-contained: the story, the setup, the exact commands, cleanup, where the telemetry ends up, and a grading key that stays hidden until I expand it. I run one (or let `lab/dealer.sh` pick), investigate the telemetry cold, write the case file, then check myself against the key.
+These are ten attack scenarios I can run against the homelab range (`lab/SETUP.md`). Each one is self-contained: the story, the setup, the exact commands, cleanup, where the telemetry ends up, and a grading key that stays hidden until I expand it. This library is also **Draghunt's private runner catalog**: Draghunt lays one (or picks blind), fires it, seals the answer key, and pulls the telemetry into a case. I investigate cold, write the case file, then check myself against the debrief.
 
 Every scenario ends in a `<details>` block with the ground truth. I don't open it until my verdict is written. It stays collapsed on GitHub, so these files also work as investigation prompts anyone can try on their own range.
 
@@ -23,11 +23,11 @@ Tier 1 needs only stock Wazuh plus auth logs. Tier 2 needs auditd on Linux or Sy
 
 ## How to run one
 
-1. Snapshot the victims to `baseline` (`lab/SETUP.md`).
-2. Either run the scenario's commands with randomized params, or run `./lab/dealer.sh --scenario S05` to have it run and seal the ground truth.
-3. Investigate from Wazuh and the raw logs. Write `cases/YYYY-MM-DD.md`.
-4. Expand the scenario's `<details>` (or read `lab/.groundtruth/`) and grade myself.
-5. Revert the victims to `baseline`.
+1. Snapshot the victims to `baseline` (`lab/SETUP.md`), or let Draghunt reset the target for me (`--reset`).
+2. Lay it in Draghunt: **Blind assessment** for a random draw, or a named drill (e.g. `draghunt lay --scenario S05 --fire`). Draghunt randomizes, fires, seals the answer key, and collects the Wazuh alerts. Fallback: run the scenario's commands with randomized params by hand.
+3. Investigate from the case events, Wazuh, and the raw logs. Write `cases/YYYY-MM-DD.md`.
+4. Submit the report in Draghunt and read the debrief and score to grade myself. (Manual fallback: expand the scenario's `<details>`.)
+5. Revert the victims to `baseline` if I didn't have Draghunt reset them.
 
 ## Tooling the scenarios lean on
 

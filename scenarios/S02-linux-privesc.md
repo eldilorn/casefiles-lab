@@ -6,7 +6,7 @@
 A low-priv user on `vic-lin` (say the `svc-backup` foothold from S01) became root. No exploit CVE, just a misconfiguration a careful eye would have caught. Which one, and what did root do next?
 
 ## Lab setup
-Pick ONE misconfig per run (the dealer randomizes which):
+Pick ONE misconfig per run (Draghunt randomizes which):
 - **A - SUID binary abuse:** `sudo chmod u+s /usr/bin/find` (a GTFOBins classic).
 - **B - sudoers wildcard/NOPASSWD:** add `svc-backup ALL=(ALL) NOPASSWD: /usr/bin/vim` to `/etc/sudoers.d/lab`.
 - **C - writable cron/PATH:** a root cron that runs a script from a user-writable dir.

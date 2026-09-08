@@ -9,7 +9,7 @@
 The practice runs across two repositories, split by audience:
 
 - **`casefiles` (public).** The public wall. It holds only the daily case files (`cases/`) and a light README. This is what employers and readers see: solved investigations, each self-contained.
-- **`casefiles-lab` (private).** The playbook. This file, `documentation/Daily-Case-Files.md`, `learning/Learning-Track.md`, `ideas.md`, the `scenarios/`, the `lab/` (dealer, setup, rules), and the sealed ground truth. This is the planning and tooling side, and only I see it.
+- **`casefiles-lab` (private).** The playbook. This file, `documentation/Daily-Case-Files.md`, `learning/Learning-Track.md`, `ideas.md`, the `scenarios/`, and the `lab/` (runners, setup, rules). This repo is also **Draghunt's private runner catalog**: the `scenarios/` and `lab/runners/` are the attack content Draghunt drives, kept out of the public product. This is the planning and tooling side, and only I see it. (Draghunt itself lives in its own repo; the sealed answer keys live in Draghunt's private data directory, not here.)
 
 **The one rule that keeps the split clean:** a public case must stand on its own. Describe the context in prose (for example, "a Windows host ran an encoded PowerShell command overnight") and never link a case to a private scenario file or assume a reader has seen the playbook. The verdict is what the case delivers, and the case doesn't need the scenario to make sense. If a case would read as gibberish to a stranger, it's leaning on the private side and needs rewriting.
 
@@ -27,7 +27,7 @@ Every day, one markdown file gets written, **committed, and pushed** to the publ
 
 **The completion rule.** Committed and pushed means complete. The rep happens in the morning, before the shift. It's the warm-up for the job. Minimum acceptable file: five sentences, 15 minutes. "Inconclusive, ran out of time, next pivot would be X" counts fully. A good session you didn't write up counts as zero. An unpushed file counts as zero. If a morning blows up, the evening is the recovery window, but it's the fallback, never the plan.
 
-**The night-before rule (now a lab action).** 60 seconds before bed, stage tomorrow. Best case: run `./lab/dealer.sh` from Barad-dûr, which fires a randomized scenario and **seals** the ground truth so morning-you investigates blind, exactly like a real shift. The full staging loop, and the `--dry-run` mode for before the range is built, are in `documentation/Daily-Case-Files.md`. Minimum case: open tomorrow's file with date, title, and the "first move" line filled in. Either way, morning-you never decides what to do. Deciding happens the night before. Morning-you only investigates.
+**The night-before rule (now a Draghunt action).** 60 seconds before bed, stage tomorrow. Best case: open Draghunt, lay a blind assessment, and let it fire a randomized scenario and **seal** the answer key so morning-you investigates blind, exactly like a real shift. The full staging loop, and the synthetic mode for before the range is built, are in `documentation/Daily-Case-Files.md`. Minimum case: open tomorrow's file with date, title, and the "first move" line filled in. Either way, morning-you never decides what to do. Deciding happens the night before. Morning-you only investigates.
 
 **The ceiling rule.** 45 minutes, hard stop, timer running. Stopping mid-investigation and writing "next pivot: X" is not failure. It's the practice working. The 15-minute rough file is not a degraded version of the practice. It is the practice.
 
@@ -38,7 +38,7 @@ Every day, one markdown file gets written, **committed, and pushed** to the publ
 The file's subject is a homelab investigation, but the practice never changes. You build the attack in your own range, monitor it with Wazuh, and investigate the telemetry cold: **attack → telemetry → detection → investigation → verdict**, all under the same seven-heading template. `documentation/Daily-Case-Files.md` covers the sourcing in full. The short version:
 
 1. **The scenario library (`scenarios/`).** Ten runnable, MITRE-mapped labs on a difficulty ladder, from SSH brute force up to prompt-injection exfil. This is the day-to-day material.
-2. **The dealer, on random.** Once the library is familiar, let `lab/dealer.sh` choose and seal. Not knowing the scenario going in is the closest thing to a real alert.
+2. **Draghunt, on blind assessment.** Once the library is familiar, let Draghunt choose and seal. Not knowing the scenario going in is the closest thing to a real alert.
 3. **Your own rebuilds.** A technique from an ATT&CK page, a DFIR Report section, or a CVE, reproduced in-lab as a new scenario file. Authoring the attack teaches as much as investigating it.
 4. **The detection artifact.** Any case can end in a working Wazuh/Sigma rule (`lab/rules/`), tested against your own attack. Optional per day, but a case that ships a rule is worth three that don't. (Keep the public write-up self-contained: describe the activity, include the rule, and don't reference the private scenario by name.)
 
@@ -94,6 +94,6 @@ One file in this (private) repo. Every new idea (hardware build, tool, video, se
 
 ---
 
-## Claude Code boundary
+## The tooling boundary (Claude Code and Draghunt)
 
-Claude Code can touch the code and the range: scaffolding the tiny agent, wiring Wazuh telemetry, authoring scenario files, writing detection rules, debugging the homelab. It never touches the case file. The write-up is the rep. If a tool writes it, you did zero reps and the streak means nothing. The investigation and the sentences are always yours.
+Tools handle the machinery, never the rep. **Claude Code** can touch the code and the range: scaffolding the tiny agent, wiring Wazuh telemetry, authoring scenario files, writing detection rules, debugging the homelab, building Draghunt itself. **Draghunt** can pick, randomize, fire, seal, collect telemetry, and grade. Neither one touches the investigation or the write-up. The verdict you reason to and the sentences you write are the rep. Draghunt can export a report as Markdown, but the export is a convenience, never the public case file: if a tool writes the write-up, you did zero reps and the streak means nothing. The investigation and the sentences are always yours.

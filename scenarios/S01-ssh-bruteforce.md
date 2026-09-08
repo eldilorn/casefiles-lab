@@ -43,7 +43,7 @@ Write/tune a rule that correlates ≥N failures followed by an `Accepted passwor
 <details>
 <summary>Grading key: don't open until your verdict is written</summary>
 
-- The ground truth for each run is sealed in `lab/.groundtruth/`. The dealer records the source IP, the target user, whether the password was in the list (success or fail), the timestamp, and whether recon ran first.
+- The ground truth for each run is sealed by Draghunt (answer key hidden until you submit). It records the source IP, the target user, whether the password was in the list (success or fail), the timestamp, and whether recon ran first.
 - **What good looks like:** you state success or failure with the evidence (the `Accepted password` line, not a guess), name the source IP and account, give the failure count and window, and list the commands run after login. Bonus if you noticed the nmap SYN scan before it.
 - **Common miss:** reporting "brute force detected" and stopping. That's the alert, not the verdict. The verdict is whether it worked. If the default rules didn't make success obvious, that blind spot is the finding, and the correlation rule above is the fix.
 </details>

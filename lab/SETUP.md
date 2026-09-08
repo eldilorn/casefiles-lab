@@ -20,7 +20,7 @@ A minimum viable range is four machines on an **isolated lab network**:
 | Manager    | `wazuh`      | Amon Hen         | Ubuntu Server       | Wazuh manager + indexer + dashboard                |
 | Victim-lin | `vic-lin`    | Moria            | Ubuntu Server 22.04 | Wazuh agent + auditd. Web scenarios add nginx/DVWA |
 | Victim-win | `vic-win`    | Erebor           | Windows 11          | Wazuh agent + Sysmon                               |
-| Attacker   | `kali`       | Barad-dûr        | Kali / Parrot       | No agent. Foothold, toolbox, and the orchestrator  |
+| Attacker   | `kali`       | Barad-dûr        | Kali / Parrot       | No agent. Foothold and toolbox; runs the runner Draghunt dispatches |
 
 Optional later: a second Linux victim for the S08 SSH pivot, a Windows domain
 controller for full S08, and a small LLM-app host for S10.
@@ -36,8 +36,8 @@ The scenario files use `10.10.10.x`. Read them against the real range with this 
 | `10.10.10.30` (vic-win)| Erebor   | 192.168.45.73  |
 | `10.10.10.5` (attacker)| Barad-dûr| 192.168.45.75  |
 
-The dealer randomizes source IPs and reads the real addresses from `lab/lab.env`,
-so nothing in the scenario files needs editing.
+Draghunt randomizes source IPs, and the runner reads the real addresses from
+`lab/lab.env`, so nothing in the scenario files needs editing.
 
 ## Telemetry, snapshots, and safety
 
@@ -59,16 +59,25 @@ detections get written.
 
 ## Running a scenario
 
-Build the range with `Lab-Buildout.md`, then stage from Barad-dûr:
+Build the range with `Lab-Buildout.md`, then run everything through **Draghunt**.
+Point Draghunt's profile at this repo as its runner catalog (`control.catalog_dir`),
+set the target's Wazuh `agent_id`, indexer URL, and read credential, and mark the
+scenarios you've wired `"live": true`. Then:
 
 ```bash
-./lab/dealer.sh --scenario S05 --dry-run   # review the plan first
-./lab/dealer.sh                            # random scenario, fire it, seal it
+# From the dashboard: choose Blind assessment or a named drill, then Run exercise.
+python -m draghunt web            # http://127.0.0.1:8787
+
+# Or the CLI, selecting the profile that points at this catalog:
+python -m draghunt --config /path/to/range.toml list
+python -m draghunt --config /path/to/range.toml lay --scenario S05 --fire --reset
 ```
 
-The dealer picks a scenario, randomizes and seals the parameters, and runs the
-matching runner in `lab/runners/`. See `lab/runners/README.md` for prerequisites
-(SSH keys, Windows OpenSSH, Atomic Red Team, per-scenario tools).
+Draghunt picks a scenario, randomizes and seals the parameters, runs the matching
+runner in `lab/runners/` (via runner protocol v1), and pulls the Wazuh alerts into
+the case. See `lab/runners/README.md` for the runner prerequisites (SSH keys,
+Windows OpenSSH, Atomic Red Team, per-scenario tools). Before the range exists, or
+when you just want a rep, Draghunt's synthetic exercises run with no lab.
 
 ## What goes to GitHub
 
@@ -77,7 +86,9 @@ Two repos, split by audience (see `documentation/One-Wall.md`):
 - **Public repo `casefiles`:** only the daily case files (`cases/YYYY-MM-DD.md`),
   the `cases/TEMPLATE.md`, and a light README. This is the wall employers read.
 - **Private repo `casefiles-lab` (this one):** the playbook, the `scenarios/`,
-  the `lab/` tooling (dealer, runners, setup), and everything else.
-- **Never committed anywhere:** `lab/.groundtruth/`, raw captures, and anything
-  with a real credential. The `.gitignore` seals the ground-truth directory and
-  `*.pcap` / `*.log`; keep it that way.
+  the `lab/` tooling (runners, setup), and everything else. This repo is also
+  Draghunt's private runner catalog; Draghunt itself lives in its own repo.
+- **Never committed anywhere:** raw captures, sealed answer keys, and anything
+  with a real credential. Draghunt keeps its sealed keys and case database in its
+  own private data directory, not here. The legacy `lab/.groundtruth/` directory,
+  `*.pcap`, and `*.log` stay git-ignored; keep it that way.

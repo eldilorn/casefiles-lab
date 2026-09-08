@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # _lib.sh — shared helpers for the scenario runners.
 #
-# Runners are sourced/executed by lab/dealer.sh, which exports the randomized
-# parameters (SCN, SRC_IP, ACCOUNT, VARIANT, SUCCEED, NOISE, DELAY) and the
-# config from lab/lab.env. Everything here runs FROM Barad-dûr.
+# Runners are invoked by the caller — Draghunt (the product) in normal use, or
+# lab/dealer.sh (the standalone prototype) for manual runs — which exports the
+# randomized parameters (SCN, SRC_IP, ACCOUNT, VARIANT, SUCCEED, NOISE, DELAY)
+# and the config from lab/lab.env. Everything here runs FROM Barad-dûr.
 #
 # Two ideas keep this honest:
 #   * DRY_RUN=1  -> print every command instead of running it. Use this before
@@ -19,7 +20,7 @@ step() { printf '\n▶ %s\n' "$*"; }
 warn() { printf '  ! %s\n' "$*" >&2; }
 
 # ---- ground-truth ledger -----------------------------------------------------
-# SEALFILE is exported by the dealer.
+# SEALFILE is exported by the caller (Draghunt, or dealer.sh in manual runs).
 note() {
   [[ -n "${SEALFILE:-}" ]] || return 0
   printf '%s | %s\n' "$(now)" "$*" >> "$SEALFILE"
