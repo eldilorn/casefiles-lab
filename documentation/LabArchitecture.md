@@ -47,8 +47,8 @@ The lab network and the regular home network cannot reach each other. Everything
 | Rivendell | Omarchy Linux laptop | 192.168.45.63 | On the lab network via Amon Sûl |
 | Amon Hen | Wazuh manager (Ubuntu) | 192.168.45.53 | 4 vCPU / 12GB / 60GB. Was SIEM-01. Dashboard on 443. Blocked outbound. The RAM-hungry box |
 | Erebor | Windows 11 victim | 192.168.45.73 | 4 vCPU / 8GB / 60GB. Was "SecOps Lab". Agent + Sysmon. SATA disk, E1000 NIC |
-| Moria | Ubuntu victim | 192.168.45.74 | 2 vCPU / 4GB / 25GB. New. Agent + auditd |
-| Barad-dûr | Kali attacker | 192.168.45.75 | 2 vCPU / 4GB / 40GB. New. No agent. My toolbox and C2 |
+| Moria | Ubuntu victim | 192.168.45.74 | 2 vCPU / 4GB / 25GB. Ubuntu 26.04. Wazuh agent (linux group) + auditd, both active. sauron attacker account (NOPASSWD sudo) |
+| Barad-dûr | Kali attacker | 192.168.45.75 | 2 vCPU / 4GB / 40GB. Kali Rolling. No agent. My toolbox and C2; hydra, nmap, iodine. Hosts the Draghunt runner under sauron |
 
 Hostnames stay plain ASCII and lowercase (amon-hen, erebor, moria, barad-dur) even where the display names keep accents. VM disks live on the NVMe thin pool, not local-lvm. All four running is ~30GB RAM against 64GB, leaving room for the planned domain controller and LLM host.
 
@@ -105,6 +105,7 @@ sudo ufw status numbered
 | `443/TCP` | Wazuh dashboard |
 | `1514/TCP` | Wazuh agent communication |
 | `1515/TCP` | Wazuh agent enrollment |
+| `9200/TCP` | Wazuh indexer API. Restricted to the Draghunt controller (Rivendell, 192.168.45.63) |
 
 The victims (Moria, Erebor) run the Wazuh agent and reach the manager on the lab network at 192.168.45.53. Barad-dûr runs no agent.
 
@@ -210,4 +211,14 @@ Connect over WireGuard when away, then:
 2026-09-01 - Added Amon Sûl (UniFi AP, .118) and Rivendell (laptop, .63)
 2026-09-01 - Planned Palantir wipe to Proxmox; renamed VMs to LOTR (Amon Hen, Erebor);
              added Moria (.74) and Barad-dûr (.75). See Lab-Buildout.md.
+2026-09-09 - Built Moria and Barad-dûr. Wired the Draghunt controller (Rivendell) into the
+             range: dedicated sauron attacker accounts on Barad-dûr and Moria, key-based
+             control chain, protocol-v1 runner on Barad-dûr, read-only draghunt-reader Wazuh
+             user. Exposed the indexer on 9200 to the controller only (network.host change).
+             Known caveat: the indexer node cert SAN is 127.0.0.1 only and must be reissued
+             to include 192.168.45.53 before verified TLS from the controller works.
+2026-09-22 - Resolved the cert caveat (reissued indexer node cert with the lab IP; re-signed
+             the root CA to add keyUsage for OpenSSL 3.6). Granted draghunt-reader cluster_monitor
+             + read on wazuh-alerts-*. Fired S01 end to end: 71 scoped alerts collected. Indexer
+             API on 9200 now reachable from the controller over verified TLS.
 ```

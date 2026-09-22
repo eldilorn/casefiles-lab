@@ -535,9 +535,62 @@ At that point I knew the centralized Windows telemetry configuration was working
 
 ---
 
+## Phase 15 — Building Moria (Linux Victim)
+
+With the Windows side proven, I stood up the Linux victim, Moria, so I would have an endpoint for the SSH, web, and exfiltration scenarios.
+
+- 2 vCPU, 4 GB RAM, 25 GB disk on the NVMe thin pool
+- Ubuntu Server 26.04 LTS, static IP `192.168.45.74`, OpenSSH enabled
+
+I installed the Wazuh agent and enrolled it into a dedicated `linux` group, so the Linux-specific telemetry is managed centrally the same way Erebor's Windows telemetry is, instead of hand-editing the box. auditd went on alongside the agent to capture `execve` and the other syscalls the scenarios rely on; stock Wazuh only reads syslog and the auth logs, which is not enough for the interesting Linux cases.
+
+After enrollment I confirmed the agent reports active and auditd is running, then snapshotted the VM as `baseline` while it was clean.
+
+---
+
+## Phase 16 — Building Barad-dûr (Kali Attacker)
+
+Barad-dûr is the adversary host, the box scenarios launch from when they need a real separate attacker (S01, S03, S08, S09).
+
+- 2 vCPU, 4 GB RAM, 40 GB disk
+- Kali GNU/Linux Rolling (kernel 6.19), static IP `192.168.45.75`
+- No Wazuh agent by design; this is the attacker, not a monitored endpoint
+
+I installed the tools the early scenarios need, hydra and nmap for the SSH brute force and iodine for DNS tunneling, then snapshotted it as `baseline`. Keeping the attacker unmonitored also matters for grading: the source IP a scenario is scored against is the address the victim actually observed, and one box cannot spoof its own source.
+
+---
+
+## Phase 17 — Wiring Draghunt to the Range
+
+Draghunt is the controller I run from Rivendell to fire a scenario, collect its evidence from Wazuh, and grade my written report against a sealed answer key. Most of the work getting it talking to the range was accounts and trust, not the tool itself.
+
+- Created a dedicated attacker account, `sauron`, on Barad-dûr and Moria, kept separate from my personal `gandalf` login so scenario activity is easy to tell apart from my own admin work later. On Moria it has passwordless sudo so the runner can seed and remove the weak target account without a prompt.
+- Built the SSH trust chain Rivendell to Barad-dûr to Moria, all key-based.
+- Deployed the private protocol-v1 runner into sauron's home on Barad-dûr. Draghunt invokes it over SSH; the sealed ground truth is generated and kept on Barad-dûr, so I stay blind to the answer while I investigate from the laptop.
+- Added a read-only Wazuh user, `draghunt-reader`, scoped to the alerts index, so the controller pulls evidence without admin credentials.
+- Opened the indexer port 9200 on Amon Hen to Rivendell only, then found the indexer was bound to localhost and had to set `network.host` so it listens on the lab interface.
+
+The runner's preflight for S01 now returns ready with the runner, target, and telemetry checks all green, so the controller-to-victim path is proven. The one thing left before a live fire was the indexer's TLS certificate, which listed only `127.0.0.1` in its SAN; clearing that and actually firing S01 is Phase 18. The account, key, and profile details are written up separately in `draghunt-integration.md`; no secrets are recorded there or here.
+
+---
+
+## Phase 18 — First live fire of S01
+
+Getting from "wired up" to a graded case took clearing three things Draghunt checks before it will fire, each of which failed loudly and pointed at the fix.
+
+- **Indexer certificate.** The reader connected but strict TLS failed. The Wazuh node cert only listed `127.0.0.1` in its SAN, so I re-issued it from the existing CA key (in the install bundle) adding `192.168.45.53`. Then a second, subtler failure: on this laptop's OpenSSL 3.6 the root CA itself was rejected for having no Key Usage extension, so I re-signed the root cert from its own key adding `keyCertSign`. Lesson: `curl -k` and `openssl s_client` are lenient; a modern client library is not, and a service cert has to name the exact address clients use.
+- **Reader permissions.** Draghunt's health check hits `/`, and its pre-fire read check searches `wazuh-alerts-*`. A narrow read-only role failed both. The reader needs the `cluster_monitor` action group for the health check and `read` on `wazuh-alerts-*` for evidence collection.
+- **Account chain.** The controller had no key onto the attacker, and the runner had no account on the victim. Created the `sauron` accounts, keyed the chain, and gave `sauron` passwordless sudo on Moria.
+
+With those cleared, S01 fired for real: hydra ran from Barad-dûr against Moria, Draghunt sealed a verified result, and after the ingest wait it collected **71 alerts, complete and scoped to agent 002** within the attack window. That is the first end-to-end graded case on the range.
+
+One thing to note for realism: the evidence window also captured the runner's own setup, `sauron` logging in and running `sudo useradd`/`chpasswd` to seed the target account, alongside the actual brute force. It does not affect grading (that scores against sealed ground truth), but a future runner change could seed the account outside the graded window so the analyst is not triaging the lab's own plumbing.
+
+---
+
 # Current State
 
-The platform and first monitored victim are both functional. I now have a working detection pipeline and an endpoint I can use for actual investigations.
+The platform, both victims, and the Kali attacker are all up, and the Draghunt controller has fired its first graded live case (S01) end to end. I now have a working detection pipeline and an endpoint I can use for actual investigations.
 
 ### Completed
 
@@ -553,6 +606,11 @@ The platform and first monitored victim are both functional. I now have a workin
 - Centralized `windows` group configured for Windows-specific telemetry
 - Full pipeline validated with a unique-marker test
 - First alert triage completed on a `net user` discovery event
+- Moria (Linux victim) built with static IP `192.168.45.74`, Wazuh agent active in a `linux` group, auditd running
+- Barad-dûr (Kali attacker) built with static IP `192.168.45.75`, scenario tools installed, no agent by design
+- Draghunt controller wired to the range: `sauron` attacker accounts, key-based control chain, protocol-v1 runner deployed, `draghunt-reader` read-only Wazuh user
+- S01 runner preflight passing (runner, target, and telemetry checks all green)
+- First live S01 fire graded end to end: hydra from Barad-dûr, 71 scoped alerts collected from Wazuh
 
 The lab has gone from a Windows host running VMware to a dedicated virtualization platform with a working SIEM and a monitored Windows endpoint.
 
@@ -583,8 +641,12 @@ That becomes case file number one.
 
 ### Build the Rest of the Lab
 
-- **Moria** — Linux victim. Install the Wazuh agent and enroll it directly into a `linux` group so auditd and other Linux-specific telemetry can be managed centrally from the start.
-- **Barad-dûr** — Kali attacker. This will be used for scenarios that need a separate adversary host, including S01, S03, S08, and S09.
+Both remaining VMs are now built (Phases 15 and 16):
+
+- **Moria** — Linux victim, Wazuh agent active in a `linux` group with auditd. Done.
+- **Barad-dûr** — Kali attacker for the scenarios that need a separate adversary host (S01, S03, S08, S09). Done.
+
+What is left is not another VM but finishing the Draghunt live path: reissue the Wazuh indexer node certificate so its SAN covers `192.168.45.53`, then fire S01 end to end and collect the evidence. After that, wire the remaining live scenarios and add the `sauron` account to Erebor for the Windows cases.
 
 ### Later, When a Scenario Needs It
 
@@ -616,6 +678,11 @@ A few things from the build are worth carrying forward:
 - Don’t delete unfamiliar SIEM content just to clean up a directory. Understand what it does first.
 - Use unique markers when validating a logging pipeline. A string like `WAZUH-TEST-RIDDLES-42` is much easier to trace than a generic process name.
 
-The infrastructure is now far enough along to use rather than just build. I have a working SIEM, a monitored Windows victim, and a telemetry path I’ve validated end to end.
+- A dedicated attacker identity is worth it. Giving the adversary its own `sauron` account, separate from my own login, keeps scenario activity distinct from my admin activity when I read the SIEM later.
+- A controller is a separate identity from the machines it drives. Draghunt needed its own key onto the attacker box, which is easy to overlook when everything else in the lab already trusts everything else.
+- Opening a firewall port only proves the packet arrives, not that anything is listening. The Wazuh indexer bound to localhost looked exactly like a firewall block until I checked from two different hosts.
+- A service certificate has to cover the address clients actually use. The indexer's cert listed only `127.0.0.1`, so verified TLS to its lab IP fails until the cert is reissued with the right SAN.
+
+The infrastructure is now far enough along to use rather than just build. I have a working SIEM, monitored Windows and Linux victims, a Kali attacker, and a Draghunt controller wired into the range with its runner preflight passing.
 
 The next stage is less about standing up servers and more about generating activity, investigating what happened, and documenting each scenario as a case file.
